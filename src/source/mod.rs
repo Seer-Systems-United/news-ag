@@ -1,4 +1,5 @@
 pub mod endpoint;
+pub(crate) mod feed;
 
 pub trait Source {
     fn endpoints() -> Vec<endpoint::Endpoint>;
