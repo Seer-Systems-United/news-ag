@@ -5,9 +5,8 @@ use news_sources::{
 
 #[test]
 fn apnews_world_endpoint_returns_articles() {
-    let endpoint = ApNews
-        .get_endpoint(EndpointScope::World)
-        .expect("apnews should define a world endpoint");
+    let endpoint =
+        ApNews::get_endpoint(EndpointScope::World).expect("apnews should define a world endpoint");
 
     let articles = endpoint.get_articles();
 
