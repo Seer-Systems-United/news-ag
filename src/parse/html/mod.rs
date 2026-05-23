@@ -28,18 +28,21 @@ pub fn parse(url: &reqwest::Url, rules: &[Rule]) -> Vec<Article> {
                     let selector = scraper::Selector::parse(&format!(".{class_name}")).unwrap();
                     area_of_interest_selectors.push(selector);
                 }
+                _ => (),
             },
             ParseSection::Title { extract_method } => match &rule.approach {
                 ParseApproach::UseClass { class_name } => {
                     let selector = scraper::Selector::parse(&format!(".{class_name}")).unwrap();
                     title_selectors.push((selector, extract_method));
                 }
+                _ => (),
             },
             ParseSection::Link { extract_method } => match &rule.approach {
                 ParseApproach::UseClass { class_name } => {
                     let selector = scraper::Selector::parse(&format!(".{class_name}")).unwrap();
                     url_selectors.push((selector, extract_method));
                 }
+                _ => (),
             },
             ParseSection::Date {
                 extract_method,
@@ -49,6 +52,7 @@ pub fn parse(url: &reqwest::Url, rules: &[Rule]) -> Vec<Article> {
                     let selector = scraper::Selector::parse(&format!(".{class_name}")).unwrap();
                     date_selectors.push((selector, extract_method, date_format));
                 }
+                _ => (),
             },
             _ => (),
         }
@@ -67,7 +71,7 @@ pub fn parse(url: &reqwest::Url, rules: &[Rule]) -> Vec<Article> {
                 articles.push(Article {
                     title,
                     url,
-                    author: None,
+                    authors: None,
                     published_at: date,
                 });
             }
