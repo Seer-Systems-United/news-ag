@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DataFormat {
     Date { format: String },
     DateTime { format: String },

@@ -1,12 +1,13 @@
-use news_sources::{apnews::ApNews, source::Source};
+use news_sources::{
+    apnews::ApNews,
+    source::{Source, endpoint::EndpointScope},
+};
 
 #[test]
 fn apnews_world_endpoint_returns_articles() {
     let endpoint = ApNews
-        .endpoints()
-        .into_iter()
-        .next()
-        .expect("apnews should define at least one endpoint");
+        .get_endpoint(EndpointScope::World)
+        .expect("apnews should define a world endpoint");
 
     let articles = endpoint.get_articles();
 

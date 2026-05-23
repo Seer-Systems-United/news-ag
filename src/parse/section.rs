@@ -1,5 +1,6 @@
 use crate::parse::{date::DataFormat, extract::ExtractMethod};
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ParseSection {
     AreaOfInterest,
     Title {

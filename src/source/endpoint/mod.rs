@@ -1,6 +1,7 @@
 use crate::parse::Format;
 use reqwest::Url;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum EndpointScope {
     World,
     US,
