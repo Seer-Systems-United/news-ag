@@ -1,9 +1,9 @@
-# news-sources
+# news-ag
 News aggregator library for rust projects.
 
 ## Usage
 ```rust
-use news_sources::{
+use news_ag::{
     apnews::ApNews,
     source::{Source, endpoint::EndpointScope},
 };

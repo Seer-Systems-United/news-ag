@@ -1,4 +1,4 @@
-use news_sources::{
+use news_ag::{
     al_jazeera::AlJazeera, atlantic::Atlantic, bbc_news::BbcNews, bloomberg::Bloomberg,
     boston_globe::BostonGlobe, calgary_herald::CalgaryHerald,
     charleston_post_and_courier::CharlestonPostAndCourier,

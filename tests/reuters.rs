@@ -1,4 +1,4 @@
-use news_sources::{
+use news_ag::{
     reuters::Reuters,
     source::{Source, endpoint::EndpointScope},
 };
