@@ -3,36 +3,70 @@ use std::io::Cursor;
 use crate::models::Article;
 
 pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
-    let body = reqwest::blocking::get(url.as_str())
-        .unwrap()
-        .text()
-        .unwrap();
+    let body = fetch_body(url, true);
+    let articles = parse_body(&body);
 
-    parse_body(&body)
+    if articles.is_empty() {
+        parse_body(&fetch_body(url, false))
+    } else {
+        articles
+    }
+}
+
+fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
+    let client = reqwest::blocking::Client::builder().build().unwrap();
+    let mut request = client.get(url.as_str());
+
+    request = request.header(
+        reqwest::header::USER_AGENT,
+        if use_user_agent {
+            "Mozilla/5.0 (compatible; news-sources/0.1)"
+        } else {
+            "curl/8.19.0"
+        },
+    );
+
+    request.send().unwrap().text().unwrap()
 }
 
 fn parse_body(body: &str) -> Vec<Article> {
-    let Ok(channel) = rss::Channel::read_from(Cursor::new(body.as_bytes())) else {
+    if let Ok(channel) = rss::Channel::read_from(Cursor::new(body.as_bytes())) {
+        return channel
+            .items()
+            .iter()
+            .filter_map(article_from_rss_item)
+            .collect();
+    }
+
+    let Ok(feed) = atom_syndication::Feed::read_from(Cursor::new(body.as_bytes())) else {
         return Vec::new();
     };
 
-    channel
-        .items()
+    feed.entries()
         .iter()
-        .filter_map(article_from_item)
+        .filter_map(article_from_atom_entry)
         .collect()
 }
 
-fn article_from_item(item: &rss::Item) -> Option<Article> {
+fn article_from_rss_item(item: &rss::Item) -> Option<Article> {
     Some(Article {
         title: text(item.title())?,
         url: text(item.link())?,
-        authors: authors(item),
-        published_at: published_at(item),
+        authors: rss_authors(item),
+        published_at: rss_published_at(item),
     })
 }
 
-fn authors(item: &rss::Item) -> Option<Vec<String>> {
+fn article_from_atom_entry(entry: &atom_syndication::Entry) -> Option<Article> {
+    Some(Article {
+        title: text(Some(entry.title().as_str()))?,
+        url: atom_link(entry)?,
+        authors: atom_authors(entry),
+        published_at: atom_published_at(entry),
+    })
+}
+
+fn rss_authors(item: &rss::Item) -> Option<Vec<String>> {
     let authors = item
         .dublin_core_ext()
         .map(|extension| extension.creators().to_vec())
@@ -52,13 +86,47 @@ fn authors(item: &rss::Item) -> Option<Vec<String>> {
     }
 }
 
-fn published_at(item: &rss::Item) -> Option<chrono::DateTime<chrono::Utc>> {
+fn rss_published_at(item: &rss::Item) -> Option<chrono::DateTime<chrono::Utc>> {
     item.pub_date()
         .or_else(|| {
             item.dublin_core_ext()
                 .and_then(|extension| extension.dates().first().map(String::as_str))
         })
         .and_then(parse_date)
+}
+
+fn atom_link(entry: &atom_syndication::Entry) -> Option<String> {
+    entry
+        .links()
+        .iter()
+        .find(|link| link.rel() == "alternate")
+        .or_else(|| entry.links().first())
+        .and_then(|link| text(Some(link.href())))
+}
+
+fn atom_authors(entry: &atom_syndication::Entry) -> Option<Vec<String>> {
+    let authors = entry
+        .authors()
+        .iter()
+        .map(|author| decode_entities(author.name().trim()))
+        .filter(|author| !author.is_empty())
+        .collect::<Vec<_>>();
+
+    if authors.is_empty() {
+        None
+    } else {
+        Some(authors)
+    }
+}
+
+fn atom_published_at(entry: &atom_syndication::Entry) -> Option<chrono::DateTime<chrono::Utc>> {
+    entry
+        .published()
+        .unwrap_or_else(|| entry.updated())
+        .to_rfc3339()
+        .parse::<chrono::DateTime<chrono::FixedOffset>>()
+        .map(|date| date.with_timezone(&chrono::Utc))
+        .ok()
 }
 
 fn parse_date(value: &str) -> Option<chrono::DateTime<chrono::Utc>> {
