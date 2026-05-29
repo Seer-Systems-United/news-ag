@@ -4,7 +4,7 @@ News aggregator library for rust projects.
 ## Usage
 ```rust
 use news_ag::{
-    apnews::ApNews,
+    ApNews,
     source::{Source, endpoint::EndpointScope},
 };
 

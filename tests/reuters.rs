@@ -1,5 +1,5 @@
 use news_ag::{
-    reuters::Reuters,
+    Reuters,
     source::{Source, endpoint::EndpointScope},
 };
 
