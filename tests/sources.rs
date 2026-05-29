@@ -1,15 +1,16 @@
 use news_ag::{
-    AlJazeera, Atlantic, BaltimoreSun, BbcNews, Bloomberg, BostonGlobe, CalgaryHerald,
-    CharlestonGazette, CharlestonGazetteMail, CharlestonPostAndCourier, ChicagoTribune,
-    ClevelandPlainDealer, Cnn, DailyBeast, DailyCaller, DailyMail, DailyTelegraph, DemocracyNow,
-    DenverPost, Economist, EdmontonJournal, Engadget, Express, GlobeAndMail, Guardian,
-    HalifaxChronicleHerald, HartfordCourant, HoustonChronicle, Independent, LosAngelesTimes,
-    MinneapolisStarTribune, MontrealGazette, NationalPost, NewYorkTimes, NewYorker, Npr,
-    OrlandoSentinel, OttawaCitizen, PhiladelphiaInquirer, PittsburghPostGazette, ReginaLeaderPost,
-    RichmondTimesDispatch, SaskatoonStarPhoenix, SeattleTimes, StJohnsTelegram,
+    AlJazeera, AtlantaJournalConstitution, Atlantic, BaltimoreSun, BbcNews, Bloomberg, BostonGlobe,
+    CalgaryHerald, CharlestonGazette, CharlestonGazetteMail, CharlestonPostAndCourier,
+    ChicagoTribune, ClevelandPlainDealer, Cnn, DailyBeast, DailyCaller, DailyMail, DailyTelegraph,
+    DallasMorningNews, DemocracyNow, DenverPost, Economist, EdmontonJournal, Engadget, Express,
+    GlobeAndMail, Guardian, HalifaxChronicleHerald, HartfordCourant, HoustonChronicle, Independent,
+    LosAngelesTimes, MinneapolisStarTribune, MontrealGazette, NationalPost, NewYorkTimes,
+    NewYorker, Npr, OrlandoSentinel, OttawaCitizen, PhiladelphiaInquirer, PittsburghPostGazette,
+    ReginaLeaderPost, RichmondTimesDispatch, SaskatoonStarPhoenix, SeattleTimes, StJohnsTelegram,
     StLouisPostDispatch, SydneyMorningHerald, TampaBayTimes, TechCrunch, Telegraph, TheAge,
-    TheAustralian, TheBlaze, TheHill, TheIntercept, TheMirror, TheSun, TheVerge, TorontoStar,
-    VancouverSun, Vox, WallStreetJournal, WashingtonPost, Wgn, WinnipegFreePress, source::Source,
+    TheAustralian, TheBlaze, TheHill, TheIntercept, TheMirror, TheSun, TheTimes, TheVerge,
+    TorontoStar, VancouverSun, Vox, WallStreetJournal, WashingtonPost, Wgn, WinnipegFreePress,
+    YoungTurks, source::Source,
 };
 
 fn assert_source_has_articles<S: Source>(source_name: &str) {
@@ -41,6 +42,11 @@ fn al_jazeera_returns_articles() {
 #[test]
 fn atlantic_returns_articles() {
     assert_source_has_articles::<Atlantic>("atlantic");
+}
+
+#[test]
+fn atlanta_journal_constitution_returns_articles() {
+    assert_source_has_articles::<AtlantaJournalConstitution>("atlanta_journal_constitution");
 }
 
 #[test]
@@ -116,6 +122,11 @@ fn daily_mail_returns_articles() {
 #[test]
 fn daily_telegraph_returns_articles() {
     assert_source_has_articles::<DailyTelegraph>("daily_telegraph");
+}
+
+#[test]
+fn dallas_morning_news_returns_articles() {
+    assert_source_has_articles::<DallasMorningNews>("dallas_morning_news");
 }
 
 #[test]
@@ -319,6 +330,11 @@ fn the_sun_returns_articles() {
 }
 
 #[test]
+fn the_times_returns_articles() {
+    assert_source_has_articles::<TheTimes>("the_times");
+}
+
+#[test]
 fn the_verge_returns_articles() {
     assert_source_has_articles::<TheVerge>("the_verge");
 }
@@ -356,4 +372,9 @@ fn wgn_returns_articles() {
 #[test]
 fn winnipeg_free_press_returns_articles() {
     assert_source_has_articles::<WinnipegFreePress>("winnipeg_free_press");
+}
+
+#[test]
+fn young_turks_returns_articles() {
+    assert_source_has_articles::<YoungTurks>("young_turks");
 }

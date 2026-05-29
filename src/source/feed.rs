@@ -1,4 +1,5 @@
 use crate::{
+    models::Article,
     parse::{Format, approach::ParseApproach, rule::Rule, section::ParseSection},
     source::endpoint::{Endpoint, EndpointScope},
 };
@@ -16,6 +17,16 @@ pub(crate) fn wordpress_endpoints(feeds: &[(EndpointScope, &str)]) -> Vec<Endpoi
     feeds
         .iter()
         .map(|(scope, url)| wordpress_endpoint(scope.clone(), url))
+        .collect()
+}
+
+pub(crate) fn ssr_json_endpoints(
+    feeds: &[(EndpointScope, &str)],
+    function: fn(&str) -> Vec<Article>,
+) -> Vec<Endpoint> {
+    feeds
+        .iter()
+        .map(|(scope, url)| ssr_json_endpoint(scope.clone(), url, function))
         .collect()
 }
 
@@ -54,4 +65,30 @@ fn wordpress_posts_url(base_url: &str) -> reqwest::Url {
     )
     .parse()
     .unwrap()
+}
+
+fn ssr_json_endpoint(
+    scope: EndpointScope,
+    url: &str,
+    function: fn(&str) -> Vec<Article>,
+) -> Endpoint {
+    Endpoint {
+        url: url.parse().unwrap(),
+        format: Format::JSON,
+        scope,
+        rules: vec![Rule {
+            section: ParseSection::AreaOfInterest,
+            approach: ParseApproach::UseJSONParser {
+                function,
+                headers: vec![
+                    (
+                        "accept".to_string(),
+                        "text/html,application/xhtml+xml,application/json".to_string(),
+                    ),
+                    ("user-agent".to_string(), USER_AGENT.to_string()),
+                ],
+                http1_only: false,
+            },
+        }],
+    }
 }
