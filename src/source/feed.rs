@@ -1,12 +1,21 @@
 use crate::{
-    parse::Format,
+    parse::{Format, approach::ParseApproach, rule::Rule, section::ParseSection},
     source::endpoint::{Endpoint, EndpointScope},
 };
+
+const USER_AGENT: &str = "Mozilla/5.0 (compatible; news-sources/0.1)";
 
 pub(crate) fn rss_endpoints(feeds: &[(EndpointScope, &str)]) -> Vec<Endpoint> {
     feeds
         .iter()
         .map(|(scope, url)| rss_endpoint(scope.clone(), url))
+        .collect()
+}
+
+pub(crate) fn wordpress_endpoints(feeds: &[(EndpointScope, &str)]) -> Vec<Endpoint> {
+    feeds
+        .iter()
+        .map(|(scope, url)| wordpress_endpoint(scope.clone(), url))
         .collect()
 }
 
@@ -17,4 +26,32 @@ fn rss_endpoint(scope: EndpointScope, url: &str) -> Endpoint {
         scope,
         rules: Vec::new(),
     }
+}
+
+fn wordpress_endpoint(scope: EndpointScope, base_url: &str) -> Endpoint {
+    Endpoint {
+        url: wordpress_posts_url(base_url),
+        format: Format::JSON,
+        scope,
+        rules: vec![Rule {
+            section: ParseSection::AreaOfInterest,
+            approach: ParseApproach::UseJSONParser {
+                function: crate::parse::json::wordpress::parse_posts,
+                headers: vec![
+                    ("accept".to_string(), "application/json".to_string()),
+                    ("user-agent".to_string(), USER_AGENT.to_string()),
+                ],
+                http1_only: false,
+            },
+        }],
+    }
+}
+
+fn wordpress_posts_url(base_url: &str) -> reqwest::Url {
+    let base_url = base_url.trim_end_matches('/');
+    format!(
+        "{base_url}/wp-json/wp/v2/posts?per_page=20&_fields=date,date_gmt,link,title,yoast_head_json.author"
+    )
+    .parse()
+    .unwrap()
 }

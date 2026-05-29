@@ -1,3 +1,5 @@
+pub(crate) mod wordpress;
+
 pub fn parse(
     url: &reqwest::Url,
     rules: &[crate::parse::rule::Rule],

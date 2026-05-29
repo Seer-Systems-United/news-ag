@@ -1,13 +1,15 @@
 use news_ag::{
-    AlJazeera, Atlantic, BbcNews, Bloomberg, BostonGlobe, CalgaryHerald,
-    CharlestonPostAndCourier, ClevelandPlainDealer, Cnn, DailyCaller, DailyMail,
-    DailyTelegraph, DemocracyNow, Economist, EdmontonJournal, Engadget, Express, GlobeAndMail,
-    Guardian, HoustonChronicle, Independent, LosAngelesTimes, MinneapolisStarTribune,
-    NationalPost, NewYorkTimes, NewYorker, Npr, OttawaCitizen, PhiladelphiaInquirer,
-    PittsburghPostGazette, ReginaLeaderPost, RichmondTimesDispatch, SaskatoonStarPhoenix,
-    StLouisPostDispatch, SydneyMorningHerald, TechCrunch, Telegraph, TheAge, TheAustralian,
-    TheBlaze, TheHill, TheIntercept, TheMirror, TheSun, TheVerge, TorontoStar, VancouverSun,
-    Vox, WallStreetJournal, WashingtonPost, Wgn, WinnipegFreePress, source::Source,
+    AlJazeera, Atlantic, BaltimoreSun, BbcNews, Bloomberg, BostonGlobe, CalgaryHerald,
+    CharlestonGazette, CharlestonGazetteMail, CharlestonPostAndCourier, ChicagoTribune,
+    ClevelandPlainDealer, Cnn, DailyBeast, DailyCaller, DailyMail, DailyTelegraph, DemocracyNow,
+    DenverPost, Economist, EdmontonJournal, Engadget, Express, GlobeAndMail, Guardian,
+    HalifaxChronicleHerald, HartfordCourant, HoustonChronicle, Independent, LosAngelesTimes,
+    MinneapolisStarTribune, MontrealGazette, NationalPost, NewYorkTimes, NewYorker, Npr,
+    OrlandoSentinel, OttawaCitizen, PhiladelphiaInquirer, PittsburghPostGazette, ReginaLeaderPost,
+    RichmondTimesDispatch, SaskatoonStarPhoenix, SeattleTimes, StJohnsTelegram,
+    StLouisPostDispatch, SydneyMorningHerald, TampaBayTimes, TechCrunch, Telegraph, TheAge,
+    TheAustralian, TheBlaze, TheHill, TheIntercept, TheMirror, TheSun, TheVerge, TorontoStar,
+    VancouverSun, Vox, WallStreetJournal, WashingtonPost, Wgn, WinnipegFreePress, source::Source,
 };
 
 fn assert_source_has_articles<S: Source>(source_name: &str) {
@@ -42,6 +44,11 @@ fn atlantic_returns_articles() {
 }
 
 #[test]
+fn baltimore_sun_returns_articles() {
+    assert_source_has_articles::<BaltimoreSun>("baltimore_sun");
+}
+
+#[test]
 fn bbc_news_returns_articles() {
     assert_source_has_articles::<BbcNews>("bbc_news");
 }
@@ -62,8 +69,23 @@ fn calgary_herald_returns_articles() {
 }
 
 #[test]
+fn charleston_gazette_returns_articles() {
+    assert_source_has_articles::<CharlestonGazette>("charleston_gazette");
+}
+
+#[test]
+fn charleston_gazette_mail_returns_articles() {
+    assert_source_has_articles::<CharlestonGazetteMail>("charleston_gazette_mail");
+}
+
+#[test]
 fn charleston_post_and_courier_returns_articles() {
     assert_source_has_articles::<CharlestonPostAndCourier>("charleston_post_and_courier");
+}
+
+#[test]
+fn chicago_tribune_returns_articles() {
+    assert_source_has_articles::<ChicagoTribune>("chicago_tribune");
 }
 
 #[test]
@@ -74,6 +96,11 @@ fn cleveland_plain_dealer_returns_articles() {
 #[test]
 fn cnn_returns_articles() {
     assert_source_has_articles::<Cnn>("cnn");
+}
+
+#[test]
+fn daily_beast_returns_articles() {
+    assert_source_has_articles::<DailyBeast>("daily_beast");
 }
 
 #[test]
@@ -94,6 +121,11 @@ fn daily_telegraph_returns_articles() {
 #[test]
 fn democracy_now_returns_articles() {
     assert_source_has_articles::<DemocracyNow>("democracy_now");
+}
+
+#[test]
+fn denver_post_returns_articles() {
+    assert_source_has_articles::<DenverPost>("denver_post");
 }
 
 #[test]
@@ -127,6 +159,16 @@ fn guardian_returns_articles() {
 }
 
 #[test]
+fn halifax_chronicle_herald_returns_articles() {
+    assert_source_has_articles::<HalifaxChronicleHerald>("halifax_chronicle_herald");
+}
+
+#[test]
+fn hartford_courant_returns_articles() {
+    assert_source_has_articles::<HartfordCourant>("hartford_courant");
+}
+
+#[test]
 fn houston_chronicle_returns_articles() {
     assert_source_has_articles::<HoustonChronicle>("houston_chronicle");
 }
@@ -147,6 +189,11 @@ fn minneapolis_star_tribune_returns_articles() {
 }
 
 #[test]
+fn montreal_gazette_returns_articles() {
+    assert_source_has_articles::<MontrealGazette>("montreal_gazette");
+}
+
+#[test]
 fn national_post_returns_articles() {
     assert_source_has_articles::<NationalPost>("national_post");
 }
@@ -164,6 +211,11 @@ fn new_yorker_returns_articles() {
 #[test]
 fn npr_returns_articles() {
     assert_source_has_articles::<Npr>("npr");
+}
+
+#[test]
+fn orlando_sentinel_returns_articles() {
+    assert_source_has_articles::<OrlandoSentinel>("orlando_sentinel");
 }
 
 #[test]
@@ -197,6 +249,16 @@ fn saskatoon_starphoenix_returns_articles() {
 }
 
 #[test]
+fn seattle_times_returns_articles() {
+    assert_source_has_articles::<SeattleTimes>("seattle_times");
+}
+
+#[test]
+fn st_johns_telegram_returns_articles() {
+    assert_source_has_articles::<StJohnsTelegram>("st_johns_telegram");
+}
+
+#[test]
 fn st_louis_post_dispatch_returns_articles() {
     assert_source_has_articles::<StLouisPostDispatch>("st_louis_post_dispatch");
 }
@@ -204,6 +266,11 @@ fn st_louis_post_dispatch_returns_articles() {
 #[test]
 fn sydney_morning_herald_returns_articles() {
     assert_source_has_articles::<SydneyMorningHerald>("sydney_morning_herald");
+}
+
+#[test]
+fn tampa_bay_times_returns_articles() {
+    assert_source_has_articles::<TampaBayTimes>("tampa_bay_times");
 }
 
 #[test]
