@@ -6,6 +6,20 @@ use crate::{
 
 const USER_AGENT: &str = "Mozilla/5.0 (compatible; news-sources/0.1)";
 
+macro_rules! rss_source {
+    ($name:ident, $scope:expr, $url:expr) => {
+        pub struct $name;
+
+        impl $crate::source::Source for $name {
+            fn endpoints() -> Vec<$crate::source::endpoint::Endpoint> {
+                $crate::source::feed::rss_endpoints(&[($scope, $url)])
+            }
+        }
+    };
+}
+
+pub(crate) use rss_source;
+
 pub(crate) fn rss_endpoints(feeds: &[(EndpointScope, &str)]) -> Vec<Endpoint> {
     feeds
         .iter()
