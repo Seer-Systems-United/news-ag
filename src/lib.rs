@@ -10,6 +10,7 @@ pub mod cincinnati_enquirer;
 pub mod clarin;
 pub mod cnbc;
 pub mod columbus_dispatch;
+pub mod content;
 pub mod daily_kos;
 pub mod daily_wire;
 pub mod der_spiegel;

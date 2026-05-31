@@ -80,21 +80,48 @@ pub fn parse_body(body: &str) -> Vec<Article> {
 }
 
 fn article_from_rss_item(item: &rss::Item) -> Option<Article> {
-    Some(Article {
-        title: text(item.title())?,
-        url: text(item.link())?,
-        authors: rss_authors(item),
-        published_at: rss_published_at(item),
-    })
+    let article = Article::new(
+        text(item.title())?,
+        text(item.link())?,
+        rss_authors(item),
+        rss_published_at(item),
+    );
+
+    Some(with_inline_content(article, item.content()))
 }
 
 fn article_from_atom_entry(entry: &atom_syndication::Entry) -> Option<Article> {
-    Some(Article {
-        title: text(Some(entry.title().as_str()))?,
-        url: atom_link(entry)?,
-        authors: atom_authors(entry),
-        published_at: atom_published_at(entry),
-    })
+    let article = Article::new(
+        text(Some(entry.title().as_str()))?,
+        atom_link(entry)?,
+        atom_authors(entry),
+        atom_published_at(entry),
+    );
+
+    Some(with_inline_content(article, atom_inline_content(entry)))
+}
+
+fn with_inline_content(article: Article, content: Option<&str>) -> Article {
+    if let Some(content) = content.map(str::trim).filter(|content| !content.is_empty()) {
+        article.with_inline_content(content)
+    } else {
+        article
+    }
+}
+
+fn atom_inline_content(entry: &atom_syndication::Entry) -> Option<&str> {
+    let content = entry.content()?;
+
+    match content.content_type() {
+        None
+        | Some("text")
+        | Some("html")
+        | Some("xhtml")
+        | Some("text/plain")
+        | Some("text/html")
+        | Some("application/xhtml+xml") => content.value(),
+        _ => None,
+    }
 }
 
 fn rss_authors(item: &rss::Item) -> Option<Vec<String>> {
@@ -229,6 +256,7 @@ mod tests {
                         <link>https://example.com/article</link>
                         <dc:creator><![CDATA[Reporter]]></dc:creator>
                         <pubDate>Sat, 23 May 2026 06:00:00 GMT</pubDate>
+                        <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/"><![CDATA[<p>Full article.</p>]]></content:encoded>
                     </item>
                 </channel>
             </rss>"#,
@@ -242,6 +270,11 @@ mod tests {
             &vec!["Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert!(matches!(
+            articles[0].content_source(),
+            crate::models::ArticleContentSource::InlineHtml(content)
+                if content == "<p>Full article.</p>"
+        ));
     }
 
     #[test]

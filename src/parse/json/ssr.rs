@@ -86,11 +86,11 @@ pub(crate) fn article_from_object(
         return None;
     }
 
-    Some(Article {
+    Some(Article::new(
         title,
         url,
-        authors: authors(object),
-        published_at: first_string(
+        authors(object),
+        first_string(
             object,
             &[
                 "displayedDate",
@@ -102,7 +102,7 @@ pub(crate) fn article_from_object(
             ],
         )
         .and_then(parse_date),
-    })
+    ))
 }
 
 pub(crate) fn next_flight_links(body: &str) -> Vec<NextFlightLink> {

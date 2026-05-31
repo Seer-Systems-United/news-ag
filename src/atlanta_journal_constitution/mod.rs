@@ -27,12 +27,7 @@ fn parse_articles(body: &str) -> Vec<Article> {
                 return None;
             }
 
-            Some(Article {
-                title: link.title,
-                url,
-                authors: None,
-                published_at: None,
-            })
+            Some(Article::new(link.title, url, None, None))
         })
         .collect();
 

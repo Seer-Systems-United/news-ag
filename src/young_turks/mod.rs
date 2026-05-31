@@ -42,12 +42,12 @@ fn article_from_object(object: &Map<String, Value>) -> Option<Article> {
     let title = ssr::clean_text(ssr::object_string(object, "title")?)?;
     let production_id = ssr::object_string(object, "production_id")?;
 
-    Some(Article {
+    Some(Article::new(
         title,
-        url: format!("{BASE_URL}/watch/{production_id}"),
-        authors: ssr::object_string(object, "brand_name").map(|brand| vec![brand.to_string()]),
-        published_at: ssr::object_string(object, "date").and_then(ssr::parse_date),
-    })
+        format!("{BASE_URL}/watch/{production_id}"),
+        ssr::object_string(object, "brand_name").map(|brand| vec![brand.to_string()]),
+        ssr::object_string(object, "date").and_then(ssr::parse_date),
+    ))
 }
 
 #[cfg(test)]

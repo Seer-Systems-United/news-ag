@@ -13,11 +13,13 @@ async fn main() {
     let endpoint = ApNews::get_endpoint(EndpointScope::World).expect("apnews should define a world endpoint");
 
     let articles = endpoint.get_articles().await;
+    let content = articles[0].get_content().await.expect("article content should be available");
     println!("Articles from AP News: {articles:#?}");
+    println!("First article: {content}");
 }
 ```
 
-Enable the `async` feature to use the awaitable API. Without it, `get_articles()` remains blocking.
+Enable the `async` feature to use the awaitable API. Without it, `get_articles()` and `get_content()` remain blocking.
 
 ## Sources:
 

@@ -9,6 +9,8 @@ struct WordpressPost {
     link: Option<String>,
     title: Option<RenderedText>,
     yoast_head_json: Option<YoastHeadJson>,
+    #[serde(rename = "_links")]
+    links: Option<WordpressLinks>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -21,6 +23,17 @@ struct YoastHeadJson {
     author: Option<String>,
 }
 
+#[derive(Debug, serde::Deserialize)]
+struct WordpressLinks {
+    #[serde(rename = "self")]
+    self_links: Option<Vec<WordpressLink>>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct WordpressLink {
+    href: Option<String>,
+}
+
 pub fn parse_posts(body: &str) -> Vec<Article> {
     serde_json::from_str::<Vec<WordpressPost>>(body)
         .unwrap_or_default()
@@ -30,16 +43,37 @@ pub fn parse_posts(body: &str) -> Vec<Article> {
 }
 
 fn article_from_post(post: WordpressPost) -> Option<Article> {
-    Some(Article {
-        title: clean_text(&post.title?.rendered?)?,
-        url: text(post.link.as_deref())?,
-        authors: authors(post.yoast_head_json),
-        published_at: post
-            .date_gmt
+    let WordpressPost {
+        date,
+        date_gmt,
+        link,
+        title,
+        yoast_head_json,
+        links,
+    } = post;
+
+    let article = Article::new(
+        clean_text(&title?.rendered?)?,
+        text(link.as_deref())?,
+        authors(yoast_head_json),
+        date_gmt
             .as_deref()
             .and_then(parse_wordpress_date)
-            .or_else(|| post.date.as_deref().and_then(parse_wordpress_date)),
+            .or_else(|| date.as_deref().and_then(parse_wordpress_date)),
+    );
+
+    Some(if let Some(url) = wordpress_content_url(links) {
+        article.with_wordpress_content_url(url)
+    } else {
+        article
     })
+}
+
+fn wordpress_content_url(links: Option<WordpressLinks>) -> Option<reqwest::Url> {
+    links?
+        .self_links?
+        .into_iter()
+        .find_map(|link| link.href?.parse().ok())
 }
 
 fn authors(yoast_head_json: Option<YoastHeadJson>) -> Option<Vec<String>> {
@@ -149,7 +183,12 @@ mod tests {
                     "date_gmt": "2026-05-29T01:08:37",
                     "link": "https://example.com/news",
                     "title": { "rendered": "Gov. Jared Polis&#8217; first <em>vetoes</em>" },
-                    "yoast_head_json": { "author": "Jane Reporter" }
+                    "yoast_head_json": { "author": "Jane Reporter" },
+                    "_links": {
+                        "self": [
+                            { "href": "https://example.com/wp-json/wp/v2/posts/42" }
+                        ]
+                    }
                 }
             ]"#,
         );
@@ -162,6 +201,11 @@ mod tests {
             &vec!["Jane Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert!(matches!(
+            articles[0].content_source(),
+            crate::models::ArticleContentSource::WordpressRest(url)
+                if url.as_str() == "https://example.com/wp-json/wp/v2/posts/42?_fields=content.rendered"
+        ));
     }
 
     #[test]

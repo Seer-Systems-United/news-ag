@@ -85,12 +85,7 @@ fn parse_body(body: &str, rules: &[Rule]) -> Vec<Article> {
                 extract_first_from_section(section, &title_selectors),
                 extract_first_from_section(section, &url_selectors),
             ) {
-                articles.push(Article {
-                    title,
-                    url,
-                    authors: None,
-                    published_at: date,
-                });
+                articles.push(Article::new(title, url, None, date));
             }
         }
     }

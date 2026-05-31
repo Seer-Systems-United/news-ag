@@ -125,12 +125,7 @@ impl SitemapArticle {
             .map(|date| date.with_timezone(&chrono::Utc))
             .ok();
 
-        Some(Article {
-            title,
-            url,
-            authors: None,
-            published_at,
-        })
+        Some(Article::new(title, url, None, published_at))
     }
 }
 

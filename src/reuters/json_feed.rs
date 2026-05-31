@@ -10,12 +10,12 @@ pub fn parse(body: &str) -> Option<Vec<Article>> {
 }
 
 fn parse_article(article: &serde_json::Value) -> Option<Article> {
-    Some(Article {
-        title: article_title(article)?,
-        url: super::helpers::absolute_url(article_path(article)?),
-        authors: article_authors(article),
-        published_at: article_published_at(article),
-    })
+    Some(Article::new(
+        article_title(article)?,
+        super::helpers::absolute_url(article_path(article)?),
+        article_authors(article),
+        article_published_at(article),
+    ))
 }
 
 fn article_title(article: &serde_json::Value) -> Option<String> {
