@@ -38,6 +38,10 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [Deutsche Welle](https://www.dw.com/en/)
 - [x] [Al Jazeera](https://www.aljazeera.com/)
 - [x] [NPR](https://www.npr.org/)
+- [ ] [Agence France-Presse (AFP)](https://www.afp.com/)
+- [ ] [United Press International](https://www.upi.com/)
+- [ ] [Euronews](https://www.euronews.com/)
+- [ ] [Al-Monitor](https://www.al-monitor.com/)
 
 ### Business & Finance
 - [x] [The Wall Street Journal](https://www.wsj.com/)
@@ -49,6 +53,10 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [Fortune](https://fortune.com/)
 - [x] [Forbes](https://www.forbes.com/)
 - [x] [Quartz](https://qz.com/)
+- [ ] [MarketWatch](https://www.marketwatch.com/)
+- [ ] [Investor's Business Daily](https://www.investors.com/)
+- [ ] [Fast Company](https://www.fastcompany.com/)
+- [ ] [Kiplinger](https://www.kiplinger.com/)
 
 ### Technology & Science
 - [x] [Wired](https://www.wired.com/)
@@ -62,6 +70,10 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [Scientific American](https://www.scientificamerican.com/)
 - [x] [New Scientist](https://www.newscientist.com/)
 - [ ] [National Geographic](https://www.nationalgeographic.com/)
+- [ ] [CNET](https://www.cnet.com/)
+- [ ] [PCMag](https://www.pcmag.com/)
+- [ ] [VentureBeat](https://venturebeat.com/)
+- [ ] [Mashable](https://mashable.com/)
 
 ### Regional News - United States
 - [x] [New York Times](https://www.nytimes.com/)
@@ -99,6 +111,10 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [The Charleston Post and Courier](https://www.postandcourier.com/)
 - [x] [The Charleston Gazette](https://www.wvgazettemail.com/)
 - [x] [WGN](https://wgntv.com/)
+- [ ] [San Francisco Chronicle](https://www.sfchronicle.com/)
+- [ ] [The Arizona Republic](https://www.azcentral.com/)
+- [ ] [The Oregonian](https://www.oregonlive.com/)
+- [ ] [The Star-Ledger](https://www.nj.com/starledger/)
 
 ### Regional News - Canada
 - [x] [The Globe and Mail](https://www.theglobeandmail.com/)
@@ -114,6 +130,9 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [The Regina Leader-Post](https://leaderpost.com/)
 - [x] [The Saskatoon StarPhoenix](https://thestarphoenix.com/)
 - [x] [The St. John's Telegram](https://www.thetelegram.com/)
+- [ ] [Global News](https://globalnews.ca/)
+- [ ] [CTV News](https://www.ctvnews.ca/)
+- [ ] [La Presse](https://www.lapresse.ca/)
 
 ### Regional News - United Kingdom & Ireland
 - [x] [The Guardian](https://www.theguardian.com/international)
@@ -125,6 +144,9 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [The Daily Mail](https://www.dailymail.co.uk/)
 - [x] [The Express](https://www.express.co.uk/)
 - [x] [The Irish Times](https://www.irishtimes.com/)
+- [ ] [The Herald](https://www.heraldscotland.com/)
+- [ ] [The Belfast Telegraph](https://www.belfasttelegraph.co.uk/)
+- [ ] [The Scotsman](https://www.scotsman.com/)
 
 ### Regional News - Asia, Oceania & Middle East
 - [x] [South China Morning Post](https://www.scmp.com/)
@@ -140,6 +162,9 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [Haaretz](https://www.haaretz.com/)
 - [x] [The Jerusalem Post](https://www.jpost.com/)
 - [x] [Middle East Eye](https://www.middleeasteye.net/)
+- [ ] [The Korea Herald](https://www.koreaherald.com/)
+- [ ] [The Bangkok Post](https://www.bangkokpost.com/)
+- [ ] [The Hindu](https://www.thehindu.com/)
 
 ### Regional News - Europe & Latin America
 - [x] [El País](https://elpais.com/elpais/inenglish.html)
@@ -149,6 +174,9 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [The Moscow Times](https://www.themoscowtimes.com/)
 - [x] [Folha de S.Paulo](https://www.folha.uol.com.br/)
 - [x] [Clarín](https://www.clarin.com/)
+- [ ] [Corriere della Sera](https://www.corriere.it/english/)
+- [ ] [Frankfurter Allgemeine Zeitung](https://www.faz.net/english/)
+- [ ] [La Repubblica](https://www.repubblica.it/)
 
 ### Politics, Opinion & Commentary
 - [x] [The New Yorker](https://www.newyorker.com/)
@@ -185,6 +213,11 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [Time](https://time.com/)
 - [x] [Foreign Policy](https://foreignpolicy.com/)
 - [x] [The Christian Science Monitor](https://www.csmonitor.com/)
+- [ ] [The Bulwark](https://www.thebulwark.com/)
+- [ ] [Common Dreams](https://www.commondreams.org/)
+- [ ] [Drop Site News](https://www.dropsitenews.com/)
+- [ ] [Zeteo](https://zeteo.com/)
+- [ ] [The American Conservative](https://www.theamericanconservative.com/)
 
 ### Arts, Entertainment & Gaming
 - [x] [Variety](https://variety.com/)
@@ -197,6 +230,10 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [Pitchfork](https://pitchfork.com/)
 - [x] [Empire](https://www.empireonline.com/)
 - [x] [The Art Newspaper](https://www.theartnewspaper.com/)
+- [ ] [GameSpot](https://www.gamespot.com/)
+- [ ] [Vulture](https://www.vulture.com/)
+- [ ] [Screen Rant](https://screenrant.com/)
+- [ ] [NME](https://www.nme.com/)
 
 ## License
 This project is licensed under either of the following licenses, at your option:
