@@ -29,7 +29,7 @@ fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
     request.send().unwrap().text().unwrap()
 }
 
-fn parse_body(body: &str) -> Vec<Article> {
+pub fn parse_body(body: &str) -> Vec<Article> {
     if let Ok(channel) = rss::Channel::read_from(Cursor::new(body.as_bytes())) {
         return channel
             .items()
@@ -67,17 +67,23 @@ fn article_from_atom_entry(entry: &atom_syndication::Entry) -> Option<Article> {
 }
 
 fn rss_authors(item: &rss::Item) -> Option<Vec<String>> {
-    let authors = item
+    let authors = if let Some(authors) = item
         .dublin_core_ext()
-        .map(|extension| extension.creators().to_vec())
+        .map(|extension| extension.creators())
         .filter(|authors| !authors.is_empty())
-        .or_else(|| item.author().map(|author| vec![author.to_string()]))?;
-
-    let authors = authors
-        .into_iter()
-        .map(|author| decode_entities(author.trim()))
-        .filter(|author| !author.is_empty())
-        .collect::<Vec<_>>();
+    {
+        authors
+            .iter()
+            .map(|author| decode_entities(author.trim()))
+            .filter(|author| !author.is_empty())
+            .collect::<Vec<_>>()
+    } else {
+        item.author()
+            .map(|author| decode_entities(author.trim()))
+            .filter(|author| !author.is_empty())
+            .into_iter()
+            .collect::<Vec<_>>()
+    };
 
     if authors.is_empty() {
         None
@@ -120,13 +126,12 @@ fn atom_authors(entry: &atom_syndication::Entry) -> Option<Vec<String>> {
 }
 
 fn atom_published_at(entry: &atom_syndication::Entry) -> Option<chrono::DateTime<chrono::Utc>> {
-    entry
-        .published()
-        .unwrap_or_else(|| entry.updated())
-        .to_rfc3339()
-        .parse::<chrono::DateTime<chrono::FixedOffset>>()
-        .map(|date| date.with_timezone(&chrono::Utc))
-        .ok()
+    Some(
+        entry
+            .published()
+            .unwrap_or_else(|| entry.updated())
+            .with_timezone(&chrono::Utc),
+    )
 }
 
 fn parse_date(value: &str) -> Option<chrono::DateTime<chrono::Utc>> {
@@ -144,13 +149,37 @@ fn text(value: Option<&str>) -> Option<String> {
 }
 
 fn decode_entities(value: &str) -> String {
-    value
-        .replace("&amp;", "&")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&quot;", "\"")
-        .replace("&apos;", "'")
-        .replace("&#39;", "'")
+    let Some(_) = value.find('&') else {
+        return value.to_string();
+    };
+
+    let mut decoded = String::with_capacity(value.len());
+    let mut remainder = value;
+
+    while let Some(start) = remainder.find('&') {
+        decoded.push_str(&remainder[..start]);
+
+        let Some(end) = remainder[start + 1..].find(';') else {
+            decoded.push_str(&remainder[start..]);
+            return decoded;
+        };
+        let end = start + end + 1;
+        let entity = &remainder[start + 1..end];
+
+        decoded.push_str(match entity {
+            "amp" => "&",
+            "lt" => "<",
+            "gt" => ">",
+            "quot" => "\"",
+            "apos" | "#39" => "'",
+            _ => &remainder[start..=end],
+        });
+
+        remainder = &remainder[end + 1..];
+    }
+
+    decoded.push_str(remainder);
+    decoded
 }
 
 #[cfg(test)]
@@ -182,5 +211,41 @@ mod tests {
             &vec!["Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+    }
+
+    #[test]
+    fn parses_atom_entries() {
+        let articles = super::parse_body(
+            r#"<?xml version="1.0" encoding="UTF-8"?>
+            <feed xmlns="http://www.w3.org/2005/Atom">
+                <title>Example Feed</title>
+                <id>https://example.com</id>
+                <updated>2026-05-23T06:00:00Z</updated>
+                <entry>
+                    <title>Example headline</title>
+                    <link href="https://example.com/article" rel="alternate"/>
+                    <id>https://example.com/article</id>
+                    <updated>2026-05-23T06:00:00Z</updated>
+                    <author><name>Reporter</name></author>
+                </entry>
+            </feed>"#,
+        );
+
+        assert_eq!(articles.len(), 1);
+        assert_eq!(articles[0].title, "Example headline");
+        assert_eq!(articles[0].url, "https://example.com/article");
+        assert_eq!(
+            articles[0].authors.as_ref().unwrap(),
+            &vec!["Reporter".to_string()]
+        );
+        assert!(articles[0].published_at.is_some());
+    }
+
+    #[test]
+    fn decodes_known_entities_and_preserves_unknown_entities() {
+        assert_eq!(
+            super::decode_entities("A &amp; B &nbsp; C &#39;"),
+            "A & B &nbsp; C '"
+        );
     }
 }

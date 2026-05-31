@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::models::Article;
 
 #[derive(Debug, serde::Deserialize)]
@@ -19,7 +21,7 @@ struct YoastHeadJson {
     author: Option<String>,
 }
 
-pub(crate) fn parse_posts(body: &str) -> Vec<Article> {
+pub fn parse_posts(body: &str) -> Vec<Article> {
     serde_json::from_str::<Vec<WordpressPost>>(body)
         .unwrap_or_default()
         .into_iter()
@@ -68,11 +70,72 @@ fn text(value: Option<&str>) -> Option<String> {
 }
 
 fn clean_text(value: &str) -> Option<String> {
+    let stripped = strip_tags(value);
+    let decoded = match quick_xml::escape::unescape(&stripped) {
+        Ok(Cow::Owned(decoded)) => Cow::Owned(decoded),
+        Ok(Cow::Borrowed(_)) => stripped,
+        Err(_) => return clean_text_with_html_parser(value),
+    };
+
+    normalize_text(decoded)
+}
+
+fn strip_tags(value: &str) -> Cow<'_, str> {
+    if !value.contains('<') {
+        return Cow::Borrowed(value);
+    }
+
+    let mut text = String::with_capacity(value.len());
+    let mut in_tag = false;
+
+    for character in value.chars() {
+        match character {
+            '<' => {
+                in_tag = true;
+                text.push(' ');
+            }
+            '>' if in_tag => {
+                in_tag = false;
+                text.push(' ');
+            }
+            _ if !in_tag => text.push(character),
+            _ => {}
+        }
+    }
+
+    Cow::Owned(text)
+}
+
+fn normalize_text(value: Cow<'_, str>) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    if trimmed.len() == value.len()
+        && !trimmed.contains("  ")
+        && !trimmed
+            .chars()
+            .any(|character| character.is_whitespace() && character != ' ')
+    {
+        return Some(value.into_owned());
+    }
+
+    let mut normalized = String::with_capacity(trimmed.len());
+    for word in trimmed.split_whitespace() {
+        if !normalized.is_empty() {
+            normalized.push(' ');
+        }
+        normalized.push_str(word);
+    }
+
+    Some(normalized)
+}
+
+fn clean_text_with_html_parser(value: &str) -> Option<String> {
     let fragment = scraper::Html::parse_fragment(value);
     let text = fragment.root_element().text().collect::<Vec<_>>().join(" ");
-    let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
-
-    if text.is_empty() { None } else { Some(text) }
+    normalize_text(Cow::Owned(text))
 }
 
 #[cfg(test)]
@@ -99,5 +162,13 @@ mod tests {
             &vec!["Jane Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+    }
+
+    #[test]
+    fn parses_named_html_entities_with_fallback() {
+        assert_eq!(
+            super::clean_text("<em>Breaking</em>&hellip;"),
+            Some("Breaking …".to_string())
+        );
     }
 }

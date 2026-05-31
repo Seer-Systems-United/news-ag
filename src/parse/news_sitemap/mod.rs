@@ -1,16 +1,10 @@
 use quick_xml::{
-    NsReader,
+    Reader,
     escape::unescape,
     events::{BytesCData, BytesText, Event},
-    name::{Namespace, ResolveResult},
 };
 
 use crate::models::Article;
-
-const SITEMAP_NAMESPACE: Namespace<'static> =
-    Namespace(b"http://www.sitemaps.org/schemas/sitemap/0.9");
-const NEWS_NAMESPACE: Namespace<'static> =
-    Namespace(b"http://www.google.com/schemas/sitemap-news/0.9");
 
 pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
     parse_body(&fetch_body(url))
@@ -31,67 +25,57 @@ fn fetch_body(url: &reqwest::Url) -> String {
         .unwrap()
 }
 
-fn parse_body(body: &str) -> Vec<Article> {
-    let mut reader = NsReader::from_str(body);
+pub fn parse_body(body: &str) -> Vec<Article> {
+    let mut reader = Reader::from_str(body);
     reader.config_mut().trim_text(true);
 
     let mut articles = Vec::new();
     let mut current = None;
     let mut field = None;
+    let mut in_news = false;
 
     loop {
-        match reader.read_resolved_event() {
-            Ok((namespace, Event::Start(event))) => match event.local_name().as_ref() {
-                b"url" if is_sitemap_namespace(&namespace) => {
-                    current = Some(SitemapArticle::default())
+        match reader.read_event() {
+            Ok(Event::Start(event)) => match event.local_name().as_ref() {
+                b"url" => current = Some(SitemapArticle::default()),
+                b"loc"
+                    if current
+                        .as_ref()
+                        .is_some_and(|article| article.url.is_empty()) =>
+                {
+                    field = Some(Field::Url);
                 }
-                b"loc" if is_sitemap_namespace(&namespace) => field = Some(Field::Url),
-                b"title" if namespace == ResolveResult::Bound(NEWS_NAMESPACE) => {
-                    field = Some(Field::Title)
-                }
-                b"publication_date" if namespace == ResolveResult::Bound(NEWS_NAMESPACE) => {
-                    field = Some(Field::PublishedAt)
-                }
+                b"news" => in_news = true,
+                b"title" if in_news => field = Some(Field::Title),
+                b"publication_date" if in_news => field = Some(Field::PublishedAt),
                 _ => {}
             },
-            Ok((_, Event::Text(text))) => {
-                if let Some(value) = decode_text(&text) {
-                    append(&mut current, field, &value);
+            Ok(Event::Text(text)) => {
+                if field.is_some() {
+                    append_text(&mut current, field, &text);
                 }
             }
-            Ok((_, Event::CData(text))) => {
-                if let Some(value) = decode_cdata(&text) {
-                    append(&mut current, field, &value);
+            Ok(Event::CData(text)) => {
+                if field.is_some() {
+                    append_cdata(&mut current, field, &text);
                 }
             }
-            Ok((namespace, Event::End(event))) => match event.local_name().as_ref() {
-                b"url" if is_sitemap_namespace(&namespace) => {
+            Ok(Event::End(event)) => match event.local_name().as_ref() {
+                b"url" => {
                     if let Some(article) = current.take().and_then(SitemapArticle::into_article) {
                         articles.push(article);
                     }
                 }
-                b"loc" if is_sitemap_namespace(&namespace) => field = None,
-                b"title" | b"publication_date"
-                    if namespace == ResolveResult::Bound(NEWS_NAMESPACE) =>
-                {
-                    field = None
-                }
+                b"loc" | b"title" | b"publication_date" => field = None,
+                b"news" => in_news = false,
                 _ => {}
             },
-            Ok((_, Event::Eof)) | Err(_) => break,
+            Ok(Event::Eof) | Err(_) => break,
             _ => {}
         }
     }
 
     articles
-}
-
-fn is_sitemap_namespace(namespace: &ResolveResult<'_>) -> bool {
-    matches!(namespace, ResolveResult::Unbound)
-        || matches!(
-            namespace,
-            ResolveResult::Bound(namespace) if *namespace == SITEMAP_NAMESPACE
-        )
 }
 
 #[derive(Clone, Copy)]
@@ -110,8 +94,8 @@ struct SitemapArticle {
 
 impl SitemapArticle {
     fn into_article(self) -> Option<Article> {
-        let title = clean_text(&self.title)?;
-        let url = clean_text(&self.url)?;
+        let title = clean_text(self.title)?;
+        let url = clean_text(self.url)?;
         let published_at = chrono::DateTime::parse_from_rfc3339(self.published_at.trim())
             .map(|date| date.with_timezone(&chrono::Utc))
             .ok();
@@ -138,20 +122,48 @@ fn append(article: &mut Option<SitemapArticle>, field: Option<Field>, value: &st
     }
 }
 
-fn decode_text(text: &BytesText<'_>) -> Option<String> {
-    text.xml10_content()
-        .ok()
-        .and_then(|value| unescape(&value).ok().map(|value| value.into_owned()))
+fn append_text(article: &mut Option<SitemapArticle>, field: Option<Field>, text: &BytesText<'_>) {
+    let Ok(decoded) = text.xml10_content() else {
+        return;
+    };
+    let Ok(unescaped) = unescape(&decoded) else {
+        return;
+    };
+
+    append(article, field, &unescaped);
 }
 
-fn decode_cdata(text: &BytesCData<'_>) -> Option<String> {
-    text.xml10_content().ok().map(|value| value.into_owned())
+fn append_cdata(article: &mut Option<SitemapArticle>, field: Option<Field>, text: &BytesCData<'_>) {
+    if let Ok(value) = text.xml10_content() {
+        append(article, field, &value);
+    }
 }
 
-fn clean_text(value: &str) -> Option<String> {
-    let value = value.split_whitespace().collect::<Vec<_>>().join(" ");
+fn clean_text(value: String) -> Option<String> {
+    let trimmed = value.trim();
 
-    if value.is_empty() { None } else { Some(value) }
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    if trimmed.len() == value.len()
+        && !value.contains("  ")
+        && !value
+            .chars()
+            .any(|character| character.is_whitespace() && character != ' ')
+    {
+        return Some(value);
+    }
+
+    let mut normalized = String::with_capacity(trimmed.len());
+    for word in trimmed.split_whitespace() {
+        if !normalized.is_empty() {
+            normalized.push(' ');
+        }
+        normalized.push_str(word);
+    }
+
+    Some(normalized)
 }
 
 #[cfg(test)]
@@ -161,13 +173,17 @@ mod tests {
         let articles = super::parse_body(
             r#"<?xml version="1.0" encoding="UTF-8"?>
             <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-                    xmlns:article="http://www.google.com/schemas/sitemap-news/0.9">
+                    xmlns:article="http://www.google.com/schemas/sitemap-news/0.9"
+                    xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
                 <url>
                     <loc>https://example.com/article</loc>
                     <article:news>
                         <article:publication_date>2026-05-31T18:41:18Z</article:publication_date>
                         <article:title><![CDATA[Example & headline]]></article:title>
                     </article:news>
+                    <image:image>
+                        <image:loc>https://example.com/image.jpg</image:loc>
+                    </image:image>
                 </url>
             </urlset>"#,
         );

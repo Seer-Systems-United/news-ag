@@ -1,5 +1,5 @@
 pub(crate) mod ssr;
-pub(crate) mod wordpress;
+pub mod wordpress;
 
 pub fn parse(
     url: &reqwest::Url,
