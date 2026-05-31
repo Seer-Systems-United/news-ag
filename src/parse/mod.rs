@@ -1,5 +1,6 @@
 pub mod html;
 pub mod json;
+pub mod news_sitemap;
 pub mod rss;
 
 pub mod approach;
@@ -18,6 +19,7 @@ use crate::{models::Article, parse::rule::Rule};
 pub fn parse(format: &Format, url: &Url, rules: &[Rule]) -> Vec<Article> {
     match format {
         Format::RSS => crate::parse::rss::parse(url, rules),
+        Format::GoogleNewsSitemap => crate::parse::news_sitemap::parse(url, rules),
         Format::JSON => crate::parse::json::parse(url, rules),
         Format::HTML => crate::parse::html::parse(url, rules),
     }

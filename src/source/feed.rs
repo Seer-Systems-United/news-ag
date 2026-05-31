@@ -18,12 +18,31 @@ macro_rules! rss_source {
     };
 }
 
-pub(crate) use rss_source;
+macro_rules! news_sitemap_source {
+    ($name:ident, $scope:expr, $url:expr) => {
+        pub struct $name;
+
+        impl $crate::source::Source for $name {
+            fn endpoints() -> Vec<$crate::source::endpoint::Endpoint> {
+                $crate::source::feed::news_sitemap_endpoints(&[($scope, $url)])
+            }
+        }
+    };
+}
+
+pub(crate) use {news_sitemap_source, rss_source};
 
 pub(crate) fn rss_endpoints(feeds: &[(EndpointScope, &str)]) -> Vec<Endpoint> {
     feeds
         .iter()
         .map(|(scope, url)| rss_endpoint(scope.clone(), url))
+        .collect()
+}
+
+pub(crate) fn news_sitemap_endpoints(feeds: &[(EndpointScope, &str)]) -> Vec<Endpoint> {
+    feeds
+        .iter()
+        .map(|(scope, url)| news_sitemap_endpoint(scope.clone(), url))
         .collect()
 }
 
@@ -48,6 +67,15 @@ fn rss_endpoint(scope: EndpointScope, url: &str) -> Endpoint {
     Endpoint {
         url: url.parse().unwrap(),
         format: Format::RSS,
+        scope,
+        rules: Vec::new(),
+    }
+}
+
+fn news_sitemap_endpoint(scope: EndpointScope, url: &str) -> Endpoint {
+    Endpoint {
+        url: url.parse().unwrap(),
+        format: Format::GoogleNewsSitemap,
         scope,
         rules: Vec::new(),
     }
