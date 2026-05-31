@@ -1,5 +1,5 @@
 # news-ag
-News aggregator library for rust projects.
+News aggregator library for rust projects. 140+ news sources, with more being added regularly. Provides a unified API for fetching articles and content from a wide variety of news outlets.
 
 ## Usage
 ```rust
