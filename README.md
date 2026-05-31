@@ -197,4 +197,7 @@ Enable the `async` feature to use the awaitable API. Without it, `get_articles()
 - [x] [The Art Newspaper](https://www.theartnewspaper.com/)
 
 ## License
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details
+This project is licensed under either of the following licenses, at your option:
+
+- [Apache License, Version 2.0](LICENSE)
+- [MIT License](LICENSE-MIT)
