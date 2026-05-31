@@ -6,10 +6,17 @@ use quick_xml::{
 
 use crate::models::Article;
 
+#[cfg(not(feature = "async"))]
 pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
     parse_body(&fetch_body(url))
 }
 
+#[cfg(feature = "async")]
+pub async fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
+    parse_body(&fetch_body(url).await)
+}
+
+#[cfg(not(feature = "async"))]
 fn fetch_body(url: &reqwest::Url) -> String {
     reqwest::blocking::Client::builder()
         .build()
@@ -22,6 +29,24 @@ fn fetch_body(url: &reqwest::Url) -> String {
         .send()
         .unwrap()
         .text()
+        .unwrap()
+}
+
+#[cfg(feature = "async")]
+async fn fetch_body(url: &reqwest::Url) -> String {
+    reqwest::Client::builder()
+        .build()
+        .unwrap()
+        .get(url.as_str())
+        .header(
+            reqwest::header::USER_AGENT,
+            "Mozilla/5.0 (compatible; news-sources/0.1)",
+        )
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
         .unwrap()
 }
 

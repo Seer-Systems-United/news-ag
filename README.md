@@ -8,13 +8,16 @@ use news_ag::{
     source::{Source, endpoint::EndpointScope},
 };
 
-fn main() {    
+#[tokio::main]
+async fn main() {
     let endpoint = ApNews::get_endpoint(EndpointScope::World).expect("apnews should define a world endpoint");
 
-    let articles = endpoint.get_articles();
-    println!("The URL for AP News is: {}", articles);
+    let articles = endpoint.get_articles().await;
+    println!("Articles from AP News: {articles:#?}");
 }
 ```
+
+Enable the `async` feature to use the awaitable API. Without it, `get_articles()` remains blocking.
 
 ## Sources:
 

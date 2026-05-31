@@ -9,12 +9,29 @@ use crate::{
     },
 };
 
+#[cfg(not(feature = "async"))]
 pub fn parse(url: &reqwest::Url, rules: &[Rule]) -> Vec<Article> {
     let get_html = reqwest::blocking::get(url.as_str()).unwrap().bytes();
 
+    parse_body(
+        &String::from_utf8(get_html.unwrap().to_vec()).unwrap(),
+        rules,
+    )
+}
+
+#[cfg(feature = "async")]
+pub async fn parse(url: &reqwest::Url, rules: &[Rule]) -> Vec<Article> {
+    let get_html = reqwest::get(url.as_str()).await.unwrap().bytes().await;
+
+    parse_body(
+        &String::from_utf8(get_html.unwrap().to_vec()).unwrap(),
+        rules,
+    )
+}
+
+fn parse_body(body: &str, rules: &[Rule]) -> Vec<Article> {
     // get areas of interest from rules
-    let parser =
-        scraper::Html::parse_document(&String::from_utf8(get_html.unwrap().to_vec()).unwrap());
+    let parser = scraper::Html::parse_document(body);
 
     let mut area_of_interest_selectors = Vec::new();
     let mut title_selectors = Vec::new();

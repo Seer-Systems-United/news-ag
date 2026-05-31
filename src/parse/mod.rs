@@ -16,11 +16,22 @@ pub use self::format::Format;
 
 use crate::{models::Article, parse::rule::Rule};
 
+#[cfg(not(feature = "async"))]
 pub fn parse(format: &Format, url: &Url, rules: &[Rule]) -> Vec<Article> {
     match format {
         Format::RSS => crate::parse::rss::parse(url, rules),
         Format::GoogleNewsSitemap => crate::parse::news_sitemap::parse(url, rules),
         Format::JSON => crate::parse::json::parse(url, rules),
         Format::HTML => crate::parse::html::parse(url, rules),
+    }
+}
+
+#[cfg(feature = "async")]
+pub async fn parse(format: &Format, url: &Url, rules: &[Rule]) -> Vec<Article> {
+    match format {
+        Format::RSS => crate::parse::rss::parse(url, rules).await,
+        Format::GoogleNewsSitemap => crate::parse::news_sitemap::parse(url, rules).await,
+        Format::JSON => crate::parse::json::parse(url, rules).await,
+        Format::HTML => crate::parse::html::parse(url, rules).await,
     }
 }

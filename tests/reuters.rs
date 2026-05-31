@@ -1,7 +1,23 @@
 use news_ag::{
     Reuters,
-    source::{Source, endpoint::EndpointScope},
+    models::Article,
+    source::{
+        Source,
+        endpoint::{Endpoint, EndpointScope},
+    },
 };
+
+#[cfg(not(feature = "async"))]
+fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
+    endpoint.get_articles()
+}
+
+#[cfg(feature = "async")]
+fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
+    tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(async { endpoint.get_articles().await })
+}
 
 #[test]
 fn reuters_endpoints_are_defined_and_world_returns_articles() {
@@ -24,9 +40,9 @@ fn reuters_endpoints_are_defined_and_world_returns_articles() {
         "expected reuters to define every supported endpoint scope"
     );
 
-    let articles = Reuters::get_endpoint(EndpointScope::World)
-        .expect("reuters should define a world endpoint")
-        .get_articles();
+    let endpoint = Reuters::get_endpoint(EndpointScope::World)
+        .expect("reuters should define a world endpoint");
+    let articles = get_articles(&endpoint);
 
     assert!(
         !articles.is_empty(),

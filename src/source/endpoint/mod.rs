@@ -22,7 +22,13 @@ pub struct Endpoint {
 }
 
 impl Endpoint {
+    #[cfg(not(feature = "async"))]
     pub fn get_articles(&self) -> Vec<crate::models::Article> {
         crate::parse::parse(&self.format, &self.url, &self.rules)
+    }
+
+    #[cfg(feature = "async")]
+    pub async fn get_articles(&self) -> Vec<crate::models::Article> {
+        crate::parse::parse(&self.format, &self.url, &self.rules).await
     }
 }

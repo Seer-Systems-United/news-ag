@@ -25,6 +25,19 @@ use news_ag::{
     TorontoStar, VancouverSun, Vox, WallStreetJournal, WashingtonPost, Wgn, WinnipegFreePress,
     YoungTurks, source::Source,
 };
+use news_ag::{models::Article, source::endpoint::Endpoint};
+
+#[cfg(not(feature = "async"))]
+fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
+    endpoint.get_articles()
+}
+
+#[cfg(feature = "async")]
+fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
+    tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(async { endpoint.get_articles().await })
+}
 
 fn assert_source_has_articles<S: Source>(source_name: &str) {
     let endpoints = S::endpoints();
@@ -35,7 +48,7 @@ fn assert_source_has_articles<S: Source>(source_name: &str) {
     );
 
     let has_article = endpoints.into_iter().any(|endpoint| {
-        let articles = endpoint.get_articles();
+        let articles = get_articles(&endpoint);
         articles
             .iter()
             .any(|article| !article.title.trim().is_empty() && !article.url.trim().is_empty())

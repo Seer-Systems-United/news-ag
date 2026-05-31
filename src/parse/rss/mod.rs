@@ -2,6 +2,7 @@ use std::io::Cursor;
 
 use crate::models::Article;
 
+#[cfg(not(feature = "async"))]
 pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
     let body = fetch_body(url, true);
     let articles = parse_body(&body);
@@ -13,6 +14,19 @@ pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Art
     }
 }
 
+#[cfg(feature = "async")]
+pub async fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
+    let body = fetch_body(url, true).await;
+    let articles = parse_body(&body);
+
+    if articles.is_empty() {
+        parse_body(&fetch_body(url, false).await)
+    } else {
+        articles
+    }
+}
+
+#[cfg(not(feature = "async"))]
 fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
     let client = reqwest::blocking::Client::builder().build().unwrap();
     let mut request = client.get(url.as_str());
@@ -27,6 +41,23 @@ fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
     );
 
     request.send().unwrap().text().unwrap()
+}
+
+#[cfg(feature = "async")]
+async fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
+    let client = reqwest::Client::builder().build().unwrap();
+    let mut request = client.get(url.as_str());
+
+    request = request.header(
+        reqwest::header::USER_AGENT,
+        if use_user_agent {
+            "Mozilla/5.0 (compatible; news-sources/0.1)"
+        } else {
+            "curl/8.19.0"
+        },
+    );
+
+    request.send().await.unwrap().text().await.unwrap()
 }
 
 pub fn parse_body(body: &str) -> Vec<Article> {

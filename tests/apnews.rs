@@ -1,14 +1,30 @@
 use news_ag::{
     ApNews,
-    source::{Source, endpoint::EndpointScope},
+    models::Article,
+    source::{
+        Source,
+        endpoint::{Endpoint, EndpointScope},
+    },
 };
+
+#[cfg(not(feature = "async"))]
+fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
+    endpoint.get_articles()
+}
+
+#[cfg(feature = "async")]
+fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
+    tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(async { endpoint.get_articles().await })
+}
 
 #[test]
 fn apnews_world_endpoint_returns_articles() {
     let endpoint =
         ApNews::get_endpoint(EndpointScope::World).expect("apnews should define a world endpoint");
 
-    let articles = endpoint.get_articles();
+    let articles = get_articles(&endpoint);
 
     dbg!("Articles returned from APNews endpoint: {:#?}", &articles);
 
