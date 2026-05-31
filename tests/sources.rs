@@ -25,6 +25,13 @@ use news_ag::{
     TorontoStar, VancouverSun, Vox, WallStreetJournal, WashingtonPost, Wgn, WinnipegFreePress,
     YoungTurks, source::Source,
 };
+use news_ag::{
+    AlMonitor, AmericanConservative, BangkokPost, BelfastTelegraph, Cnet, CommonDreams,
+    CorriereDellaSera, DropSiteNews, Euronews, FastCompany, FrankfurterAllgemeineZeitung, GameSpot,
+    GlobalNews, HeraldScotland, Kiplinger, LaPresse, LaRepubblica, MarketWatch, Mashable, Nme,
+    Oregonian, Pcmag, Scotsman, ScreenRant, StarLedger, TheBulwark, TheHindu,
+    UnitedPressInternational, VentureBeat, Zeteo,
+};
 use news_ag::{models::Article, source::endpoint::Endpoint};
 
 #[cfg(not(feature = "async"))]
@@ -70,9 +77,13 @@ macro_rules! source_test {
 }
 
 source_test!(abc_news_returns_articles, AbcNews);
+source_test!(al_monitor_returns_articles, AlMonitor);
+source_test!(american_conservative_returns_articles, AmericanConservative);
 source_test!(american_prospect_returns_articles, AmericanProspect);
 source_test!(ars_technica_returns_articles, ArsTechnica);
 source_test!(axios_returns_articles, Axios);
+source_test!(bangkok_post_returns_articles, BangkokPost);
+source_test!(belfast_telegraph_returns_articles, BelfastTelegraph);
 source_test!(billboard_returns_articles, Billboard);
 source_test!(business_insider_returns_articles, BusinessInsider);
 source_test!(cbs_news_returns_articles, CbsNews);
@@ -82,24 +93,37 @@ source_test!(
 );
 source_test!(cincinnati_enquirer_returns_articles, CincinnatiEnquirer);
 source_test!(clarin_returns_articles, Clarin);
+source_test!(cnet_returns_articles, Cnet);
 source_test!(cnbc_returns_articles, Cnbc);
 source_test!(columbus_dispatch_returns_articles, ColumbusDispatch);
+source_test!(common_dreams_returns_articles, CommonDreams);
+source_test!(corriere_della_sera_returns_articles, CorriereDellaSera);
 source_test!(daily_kos_returns_articles, DailyKos);
 source_test!(daily_wire_returns_articles, DailyWire);
 source_test!(der_spiegel_returns_articles, DerSpiegel);
 source_test!(detroit_free_press_returns_articles, DetroitFreePress);
 source_test!(deutsche_welle_returns_articles, DeutscheWelle);
+source_test!(drop_site_news_returns_articles, DropSiteNews);
 source_test!(el_pais_returns_articles, ElPais);
 source_test!(empire_returns_articles, Empire);
+source_test!(euronews_returns_articles, Euronews);
+source_test!(fast_company_returns_articles, FastCompany);
 source_test!(financial_times_returns_articles, FinancialTimes);
 source_test!(folha_de_s_paulo_returns_articles, FolhaDeSPaulo);
 source_test!(forbes_returns_articles, Forbes);
 source_test!(foreign_policy_returns_articles, ForeignPolicy);
 source_test!(fortune_returns_articles, Fortune);
 source_test!(fox_news_returns_articles, FoxNews);
+source_test!(
+    frankfurter_allgemeine_zeitung_returns_articles,
+    FrankfurterAllgemeineZeitung
+);
 source_test!(france_24_returns_articles, France24);
+source_test!(gamespot_returns_articles, GameSpot);
 source_test!(gizmodo_returns_articles, Gizmodo);
+source_test!(global_news_returns_articles, GlobalNews);
 source_test!(haaretz_returns_articles, Haaretz);
+source_test!(herald_scotland_returns_articles, HeraldScotland);
 source_test!(huffington_post_returns_articles, HuffingtonPost);
 source_test!(ign_returns_articles, Ign);
 source_test!(indianapolis_star_returns_articles, IndianapolisStar);
@@ -107,14 +131,19 @@ source_test!(irish_times_returns_articles, IrishTimes);
 source_test!(jacobin_returns_articles, Jacobin);
 source_test!(japan_times_returns_articles, JapanTimes);
 source_test!(jerusalem_post_returns_articles, JerusalemPost);
+source_test!(kiplinger_returns_articles, Kiplinger);
 source_test!(kotaku_returns_articles, Kotaku);
 source_test!(kyiv_independent_returns_articles, KyivIndependent);
+source_test!(la_presse_returns_articles, LaPresse);
+source_test!(la_repubblica_returns_articles, LaRepubblica);
 source_test!(le_monde_returns_articles, LeMonde);
 source_test!(
     louisville_courier_journal_returns_articles,
     LouisvilleCourierJournal
 );
 source_test!(middle_east_eye_returns_articles, MiddleEastEye);
+source_test!(marketwatch_returns_articles, MarketWatch);
+source_test!(mashable_returns_articles, Mashable);
 source_test!(moscow_times_returns_articles, MoscowTimes);
 source_test!(mother_jones_returns_articles, MotherJones);
 source_test!(msnbc_returns_articles, Msnbc);
@@ -129,10 +158,13 @@ source_test!(new_statesman_returns_articles, NewStatesman);
 source_test!(new_york_post_returns_articles, NewYorkPost);
 source_test!(newsweek_returns_articles, Newsweek);
 source_test!(nikkei_asia_returns_articles, NikkeiAsia);
+source_test!(nme_returns_articles, Nme);
 source_test!(
     oklahoma_city_oklahoman_returns_articles,
     OklahomaCityOklahoman
 );
+source_test!(oregonian_returns_articles, Oregonian);
+source_test!(pcmag_returns_articles, Pcmag);
 source_test!(pitchfork_returns_articles, Pitchfork);
 source_test!(politico_returns_articles, Politico);
 source_test!(polygon_returns_articles, Polygon);
@@ -143,24 +175,35 @@ source_test!(reason_returns_articles, Reason);
 source_test!(rolling_stone_returns_articles, RollingStone);
 source_test!(science_magazine_returns_articles, ScienceMagazine);
 source_test!(scientific_american_returns_articles, ScientificAmerican);
+source_test!(screen_rant_returns_articles, ScreenRant);
+source_test!(scotsman_returns_articles, Scotsman);
 source_test!(sky_news_returns_articles, SkyNews);
 source_test!(
     south_china_morning_post_returns_articles,
     SouthChinaMorningPost
 );
 source_test!(spectator_returns_articles, Spectator);
+source_test!(star_ledger_returns_articles, StarLedger);
 source_test!(straits_times_returns_articles, StraitsTimes);
 source_test!(the_art_newspaper_returns_articles, TheArtNewspaper);
+source_test!(the_bulwark_returns_articles, TheBulwark);
+source_test!(the_hindu_returns_articles, TheHindu);
 source_test!(
     the_hollywood_reporter_returns_articles,
     TheHollywoodReporter
 );
 source_test!(time_returns_articles, Time);
 source_test!(times_of_india_returns_articles, TimesOfIndia);
+source_test!(
+    united_press_international_returns_articles,
+    UnitedPressInternational
+);
 source_test!(usa_today_returns_articles, UsaToday);
 source_test!(variety_returns_articles, Variety);
+source_test!(venturebeat_returns_articles, VentureBeat);
 source_test!(vice_news_returns_articles, ViceNews);
 source_test!(wired_returns_articles, Wired);
+source_test!(zeteo_returns_articles, Zeteo);
 
 #[test]
 fn al_jazeera_returns_articles() {

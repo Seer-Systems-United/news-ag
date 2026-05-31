@@ -102,7 +102,10 @@ fn article_from_atom_entry(entry: &atom_syndication::Entry) -> Option<Article> {
 }
 
 fn with_inline_content(article: Article, content: Option<&str>) -> Article {
-    if let Some(content) = content.map(str::trim).filter(|content| !content.is_empty()) {
+    if let Some(content) = content
+        .map(str::trim)
+        .filter(|content| crate::content::has_meaningful_fragment(content))
+    {
         article.with_inline_content(content)
     } else {
         article
@@ -256,7 +259,7 @@ mod tests {
                         <link>https://example.com/article</link>
                         <dc:creator><![CDATA[Reporter]]></dc:creator>
                         <pubDate>Sat, 23 May 2026 06:00:00 GMT</pubDate>
-                        <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/"><![CDATA[<p>Full article.</p>]]></content:encoded>
+                        <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/"><![CDATA[<p>Full article content with enough words to be useful to library consumers.</p>]]></content:encoded>
                     </item>
                 </channel>
             </rss>"#,
@@ -273,7 +276,23 @@ mod tests {
         assert!(matches!(
             articles[0].content_source(),
             crate::models::ArticleContentSource::InlineHtml(content)
-                if content == "<p>Full article.</p>"
+                if content == "<p>Full article content with enough words to be useful to library consumers.</p>"
+        ));
+    }
+
+    #[test]
+    fn ignores_short_inline_content() {
+        let article = crate::models::Article::new(
+            "Example".to_string(),
+            "https://example.com/article".to_string(),
+            None,
+            None,
+        );
+        let article = super::with_inline_content(article, Some("<p>Short summary.</p>"));
+
+        assert!(matches!(
+            article.content_source(),
+            crate::models::ArticleContentSource::WebPage
         ));
     }
 

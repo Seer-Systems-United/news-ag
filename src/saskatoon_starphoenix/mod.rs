@@ -7,6 +7,6 @@ pub struct SaskatoonStarPhoenix;
 
 impl crate::source::Source for SaskatoonStarPhoenix {
     fn endpoints() -> Vec<Endpoint> {
-        feed::rss_endpoints(&[(EndpointScope::World, "https://thestarphoenix.com/feed")])
+        feed::wordpress_endpoints(&[(EndpointScope::World, "https://thestarphoenix.com")])
     }
 }

@@ -1,7 +1,12 @@
-use crate::source::{endpoint::EndpointScope, feed};
+use crate::source::{
+    endpoint::{Endpoint, EndpointScope},
+    feed,
+};
 
-feed::rss_source!(
-    NationalReview,
-    EndpointScope::Politics,
-    "https://www.nationalreview.com/feed/"
-);
+pub struct NationalReview;
+
+impl crate::source::Source for NationalReview {
+    fn endpoints() -> Vec<Endpoint> {
+        feed::wordpress_endpoints(&[(EndpointScope::Politics, "https://www.nationalreview.com")])
+    }
+}
