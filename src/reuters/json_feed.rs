@@ -15,6 +15,9 @@ fn parse_article(article: &serde_json::Value) -> Option<Article> {
         super::helpers::absolute_url(article_path(article)?),
         article_authors(article),
         article_published_at(article),
+        article.as_object().and_then(|article| {
+            crate::parse::json::ssr::thumbnail_url(article, super::config::BASE_URL)
+        }),
     ))
 }
 
@@ -83,6 +86,7 @@ mod tests {
                             "canonical_url": "/world/us/one-dead-36-injured-explosion-new-york-dry-dock-2026-05-23/",
                             "title": "One dead, 36 injured in explosion at New York dry dock",
                             "published_time": "2026-05-23T01:02:48.849Z",
+                            "thumbnail": { "url": "https://example.com/reuters-image.jpg" },
                             "authors": [
                                 { "byline": "Reuters" }
                             ]
@@ -107,5 +111,9 @@ mod tests {
             &vec!["Reuters".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/reuters-image.jpg")
+        );
     }
 }

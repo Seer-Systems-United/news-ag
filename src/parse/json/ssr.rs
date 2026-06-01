@@ -102,6 +102,7 @@ pub(crate) fn article_from_object(
             ],
         )
         .and_then(parse_date),
+        thumbnail_url(object, base_url),
     ))
 }
 
@@ -156,6 +157,46 @@ pub(crate) fn resolve_url(base_url: &str, value: &str) -> Option<String> {
         .ok()
         .and_then(|base| base.join(value).ok())
         .map(|url| url.to_string())
+}
+
+pub(crate) fn thumbnail_url(object: &Map<String, Value>, base_url: &str) -> Option<String> {
+    [
+        "thumbnailUrl",
+        "thumbnail_url",
+        "thumbnail",
+        "imageUrl",
+        "image_url",
+        "image",
+        "images",
+        "leadImage",
+        "lead_image",
+        "featuredImage",
+        "featured_image",
+        "promoImage",
+        "promo_image",
+    ]
+    .iter()
+    .find_map(|key| object.get(*key).and_then(image_url))
+    .and_then(|url| resolve_url(base_url, url))
+}
+
+fn image_url(value: &Value) -> Option<&str> {
+    match value {
+        Value::String(url) => Some(url),
+        Value::Array(values) => values.iter().find_map(image_url),
+        Value::Object(object) => [
+            "url",
+            "src",
+            "href",
+            "thumbnailUrl",
+            "thumbnail_url",
+            "imageUrl",
+            "image_url",
+        ]
+        .iter()
+        .find_map(|key| object.get(*key).and_then(image_url)),
+        _ => None,
+    }
 }
 
 pub(crate) fn parse_date(value: &str) -> Option<chrono::DateTime<chrono::Utc>> {
@@ -399,6 +440,28 @@ mod tests {
         assert_eq!(
             links[0].title,
             "City council approves new neighborhood partnership"
+        );
+    }
+
+    #[test]
+    fn extracts_thumbnail_from_nested_image_object() {
+        let object = serde_json::json!({
+            "title": "City council approves new neighborhood partnership",
+            "url": "/example/2026/05/story/",
+            "thumbnailUrl": null,
+            "image": { "url": "/images/story.jpg" }
+        });
+        let article = super::article_from_object(
+            object.as_object().unwrap(),
+            "https://example.com",
+            &["title"],
+            |_, _| true,
+        )
+        .unwrap();
+
+        assert_eq!(
+            article.thumbnail_url(),
+            Some("https://example.com/images/story.jpg")
         );
     }
 }

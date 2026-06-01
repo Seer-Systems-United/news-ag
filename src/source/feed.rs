@@ -103,7 +103,7 @@ fn wordpress_endpoint(scope: EndpointScope, base_url: &str) -> Endpoint {
 fn wordpress_posts_url(base_url: &str) -> reqwest::Url {
     let base_url = base_url.trim_end_matches('/');
     format!(
-        "{base_url}/wp-json/wp/v2/posts?per_page=20&_fields=date,date_gmt,link,title,yoast_head_json.author,_links.self"
+        "{base_url}/wp-json/wp/v2/posts?per_page=20&_embed=wp:featuredmedia&_fields=date,date_gmt,link,title,jetpack_featured_media_url,yoast_head_json.author,yoast_head_json.og_image,_embedded.wp:featuredmedia.source_url,_links.self"
     )
     .parse()
     .unwrap()

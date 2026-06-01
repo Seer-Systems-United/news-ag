@@ -11,6 +11,7 @@ pub struct Article {
     pub url: String,
     pub authors: Option<Vec<String>>,
     pub published_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub thumbnail_url: Option<String>,
     content_source: ArticleContentSource,
 }
 
@@ -20,6 +21,7 @@ impl Article {
         url: String,
         authors: Option<Vec<String>>,
         published_at: Option<chrono::DateTime<chrono::Utc>>,
+        thumbnail_url: Option<String>,
     ) -> Self {
         Self {
             title,
@@ -27,6 +29,7 @@ impl Article {
             authors,
             published_at,
             content_source: ArticleContentSource::WebPage,
+            thumbnail_url,
         }
     }
 
@@ -60,6 +63,10 @@ impl Article {
 
     pub fn published_at(&self) -> Option<chrono::DateTime<chrono::Utc>> {
         self.published_at
+    }
+
+    pub fn thumbnail_url(&self) -> Option<&str> {
+        self.thumbnail_url.as_deref()
     }
 
     #[cfg(not(feature = "async"))]

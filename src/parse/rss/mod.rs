@@ -119,6 +119,7 @@ fn article_from_rss_item(item: &rss::Item) -> Option<Article> {
         text(item.link())?,
         rss_authors(item),
         rss_published_at(item),
+        rss_thumbnail_url(item),
     );
 
     Some(with_inline_content(article, item.content()))
@@ -130,6 +131,7 @@ fn article_from_atom_entry(entry: &atom_syndication::Entry) -> Option<Article> {
         atom_link(entry)?,
         atom_authors(entry),
         atom_published_at(entry),
+        atom_thumbnail_url(entry),
     );
 
     Some(with_inline_content(article, atom_inline_content(entry)))
@@ -196,6 +198,52 @@ fn rss_published_at(item: &rss::Item) -> Option<chrono::DateTime<chrono::Utc>> {
         .and_then(parse_date)
 }
 
+fn rss_thumbnail_url(item: &rss::Item) -> Option<String> {
+    rss_extension_thumbnail_url(item.extensions()).or_else(|| {
+        item.enclosure()
+            .filter(|enclosure| enclosure.mime_type().starts_with("image/"))
+            .and_then(|enclosure| text(Some(enclosure.url())))
+    })
+}
+
+fn rss_extension_thumbnail_url(extensions: &rss::extension::ExtensionMap) -> Option<String> {
+    extensions
+        .values()
+        .find_map(rss_extension_map_thumbnail_url)
+}
+
+fn rss_extension_map_thumbnail_url(
+    extensions: &std::collections::BTreeMap<String, Vec<rss::extension::Extension>>,
+) -> Option<String> {
+    extensions
+        .get("thumbnail")
+        .and_then(|extensions| extensions.iter().find_map(rss_extension_url))
+        .or_else(|| {
+            extensions.get("content").and_then(|extensions| {
+                extensions
+                    .iter()
+                    .filter(|extension| extension_is_image(extension.attrs()))
+                    .find_map(rss_extension_url)
+            })
+        })
+        .or_else(|| {
+            extensions
+                .values()
+                .flatten()
+                .find_map(|extension| rss_extension_map_thumbnail_url(extension.children()))
+        })
+}
+
+fn rss_extension_url(extension: &rss::extension::Extension) -> Option<String> {
+    extension
+        .attrs()
+        .get("url")
+        .or_else(|| extension.attrs().get("href"))
+        .map(String::as_str)
+        .or_else(|| extension.value())
+        .and_then(|url| text(Some(url)))
+}
+
 fn atom_link(entry: &atom_syndication::Entry) -> Option<String> {
     entry
         .links()
@@ -203,6 +251,68 @@ fn atom_link(entry: &atom_syndication::Entry) -> Option<String> {
         .find(|link| link.rel() == "alternate")
         .or_else(|| entry.links().first())
         .and_then(|link| text(Some(link.href())))
+}
+
+fn atom_thumbnail_url(entry: &atom_syndication::Entry) -> Option<String> {
+    atom_extension_thumbnail_url(entry.extensions()).or_else(|| {
+        entry
+            .links()
+            .iter()
+            .find(|link| {
+                link.rel() == "enclosure"
+                    && link
+                        .mime_type()
+                        .is_some_and(|mime| mime.starts_with("image/"))
+            })
+            .and_then(|link| text(Some(link.href())))
+    })
+}
+
+fn atom_extension_thumbnail_url(
+    extensions: &atom_syndication::extension::ExtensionMap,
+) -> Option<String> {
+    extensions
+        .values()
+        .find_map(atom_extension_map_thumbnail_url)
+}
+
+fn atom_extension_map_thumbnail_url(
+    extensions: &std::collections::BTreeMap<String, Vec<atom_syndication::extension::Extension>>,
+) -> Option<String> {
+    extensions
+        .get("thumbnail")
+        .and_then(|extensions| extensions.iter().find_map(atom_extension_url))
+        .or_else(|| {
+            extensions.get("content").and_then(|extensions| {
+                extensions
+                    .iter()
+                    .filter(|extension| extension_is_image(extension.attrs()))
+                    .find_map(atom_extension_url)
+            })
+        })
+        .or_else(|| {
+            extensions
+                .values()
+                .flatten()
+                .find_map(|extension| atom_extension_map_thumbnail_url(extension.children()))
+        })
+}
+
+fn atom_extension_url(extension: &atom_syndication::extension::Extension) -> Option<String> {
+    extension
+        .attrs()
+        .get("url")
+        .or_else(|| extension.attrs().get("href"))
+        .map(String::as_str)
+        .or_else(|| extension.value())
+        .and_then(|url| text(Some(url)))
+}
+
+fn extension_is_image(attrs: &std::collections::BTreeMap<String, String>) -> bool {
+    attrs.get("medium").is_some_and(|medium| medium == "image")
+        || attrs
+            .get("type")
+            .is_some_and(|mime_type| mime_type.starts_with("image/"))
 }
 
 fn atom_authors(entry: &atom_syndication::Entry) -> Option<Vec<String>> {
@@ -299,7 +409,9 @@ mod tests {
     fn parses_rss_items() {
         let articles = super::parse_body(
             r#"<?xml version="1.0" encoding="UTF-8"?>
-            <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <rss version="2.0"
+                 xmlns:dc="http://purl.org/dc/elements/1.1/"
+                 xmlns:media="http://search.yahoo.com/mrss/">
                 <channel>
                     <title>Example Feed</title>
                     <link>https://example.com</link>
@@ -309,6 +421,7 @@ mod tests {
                         <link>https://example.com/article</link>
                         <dc:creator><![CDATA[Reporter]]></dc:creator>
                         <pubDate>Sat, 23 May 2026 06:00:00 GMT</pubDate>
+                        <media:thumbnail url="https://example.com/image.jpg"/>
                         <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/"><![CDATA[<p>Full article content with enough words to be useful to library consumers.</p>]]></content:encoded>
                     </item>
                 </channel>
@@ -323,6 +436,10 @@ mod tests {
             &vec!["Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/image.jpg")
+        );
         assert!(matches!(
             articles[0].content_source(),
             crate::models::ArticleContentSource::InlineHtml(content)
@@ -335,6 +452,7 @@ mod tests {
         let article = crate::models::Article::new(
             "Example".to_string(),
             "https://example.com/article".to_string(),
+            None,
             None,
             None,
         );
@@ -357,6 +475,7 @@ mod tests {
                 <entry>
                     <title>Example headline</title>
                     <link href="https://example.com/article" rel="alternate"/>
+                    <link href="https://example.com/image.jpg" rel="enclosure" type="image/jpeg"/>
                     <id>https://example.com/article</id>
                     <updated>2026-05-23T06:00:00Z</updated>
                     <author><name>Reporter</name></author>
@@ -372,6 +491,10 @@ mod tests {
             &vec!["Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/image.jpg")
+        );
     }
 
     #[test]

@@ -29,6 +29,16 @@ fn common_rules() -> Vec<Rule> {
             },
         },
         Rule {
+            section: crate::parse::section::ParseSection::Thumbnail {
+                extract_method: ExtractMethod::Attribute {
+                    name: "src".to_string(),
+                },
+            },
+            approach: ParseApproach::UseClass {
+                class_name: "Image".to_string(),
+            },
+        },
+        Rule {
             section: crate::parse::section::ParseSection::Date {
                 extract_method: ExtractMethod::Attribute {
                     name: "data-posted-date-timestamp".to_string(),

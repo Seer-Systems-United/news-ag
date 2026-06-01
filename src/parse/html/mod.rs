@@ -36,6 +36,7 @@ fn parse_body(body: &str, rules: &[Rule]) -> Vec<Article> {
     let mut area_of_interest_selectors = Vec::new();
     let mut title_selectors = Vec::new();
     let mut url_selectors = Vec::new();
+    let mut thumbnail_selectors = Vec::new();
     let mut date_selectors = Vec::new();
 
     for rule in rules {
@@ -58,6 +59,13 @@ fn parse_body(body: &str, rules: &[Rule]) -> Vec<Article> {
                 ParseApproach::UseClass { class_name } => {
                     let selector = scraper::Selector::parse(&format!(".{class_name}")).unwrap();
                     url_selectors.push((selector, extract_method));
+                }
+                _ => (),
+            },
+            ParseSection::Thumbnail { extract_method } => match &rule.approach {
+                ParseApproach::UseClass { class_name } => {
+                    let selector = scraper::Selector::parse(&format!(".{class_name}")).unwrap();
+                    thumbnail_selectors.push((selector, extract_method));
                 }
                 _ => (),
             },
@@ -85,12 +93,74 @@ fn parse_body(body: &str, rules: &[Rule]) -> Vec<Article> {
                 extract_first_from_section(section, &title_selectors),
                 extract_first_from_section(section, &url_selectors),
             ) {
-                articles.push(Article::new(title, url, None, date));
+                let thumbnail_url = extract_first_from_section(section, &thumbnail_selectors);
+                articles.push(Article::new(title, url, None, date, thumbnail_url));
             }
         }
     }
 
     articles
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parse::{
+        approach::ParseApproach, extract::ExtractMethod, rule::Rule, section::ParseSection,
+    };
+
+    #[test]
+    fn extracts_thumbnail_from_rule() {
+        let rules = [
+            rule(ParseSection::AreaOfInterest, "card"),
+            rule(
+                ParseSection::Title {
+                    extract_method: ExtractMethod::Text,
+                },
+                "title",
+            ),
+            rule(
+                ParseSection::Link {
+                    extract_method: ExtractMethod::Attribute {
+                        name: "href".to_string(),
+                    },
+                },
+                "link",
+            ),
+            rule(
+                ParseSection::Thumbnail {
+                    extract_method: ExtractMethod::Attribute {
+                        name: "src".to_string(),
+                    },
+                },
+                "image",
+            ),
+        ];
+
+        let articles = super::parse_body(
+            r#"<div class="card">
+                <a class="link" href="https://example.com/article">
+                    <span class="title">Example headline</span>
+                </a>
+                <img class="image" src="https://example.com/image.jpg">
+            </div>"#,
+            &rules,
+        );
+
+        assert_eq!(articles.len(), 1);
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/image.jpg")
+        );
+    }
+
+    fn rule(section: ParseSection, class_name: &str) -> Rule {
+        Rule {
+            section,
+            approach: ParseApproach::UseClass {
+                class_name: class_name.to_string(),
+            },
+        }
+    }
 }
 
 fn extract_first_from_section(

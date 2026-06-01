@@ -58,11 +58,20 @@ pub fn parse_body(body: &str) -> Vec<Article> {
     let mut current = None;
     let mut field = None;
     let mut in_news = false;
+    let mut in_image = false;
 
     loop {
         match reader.read_event() {
             Ok(Event::Start(event)) => match event.local_name().as_ref() {
                 b"url" => current = Some(SitemapArticle::default()),
+                b"loc"
+                    if in_image
+                        && current
+                            .as_ref()
+                            .is_some_and(|article| article.thumbnail_url.is_empty()) =>
+                {
+                    field = Some(Field::ThumbnailUrl);
+                }
                 b"loc"
                     if current
                         .as_ref()
@@ -71,6 +80,7 @@ pub fn parse_body(body: &str) -> Vec<Article> {
                     field = Some(Field::Url);
                 }
                 b"news" => in_news = true,
+                b"image" => in_image = true,
                 b"title" if in_news => field = Some(Field::Title),
                 b"publication_date" if in_news => field = Some(Field::PublishedAt),
                 _ => {}
@@ -93,6 +103,7 @@ pub fn parse_body(body: &str) -> Vec<Article> {
                 }
                 b"loc" | b"title" | b"publication_date" => field = None,
                 b"news" => in_news = false,
+                b"image" => in_image = false,
                 _ => {}
             },
             Ok(Event::Eof) | Err(_) => break,
@@ -108,6 +119,7 @@ enum Field {
     Url,
     Title,
     PublishedAt,
+    ThumbnailUrl,
 }
 
 #[derive(Default)]
@@ -115,6 +127,7 @@ struct SitemapArticle {
     url: String,
     title: String,
     published_at: String,
+    thumbnail_url: String,
 }
 
 impl SitemapArticle {
@@ -125,7 +138,13 @@ impl SitemapArticle {
             .map(|date| date.with_timezone(&chrono::Utc))
             .ok();
 
-        Some(Article::new(title, url, None, published_at))
+        Some(Article::new(
+            title,
+            url,
+            None,
+            published_at,
+            clean_text(self.thumbnail_url),
+        ))
     }
 }
 
@@ -138,6 +157,7 @@ fn append(article: &mut Option<SitemapArticle>, field: Option<Field>, value: &st
         Some(Field::Url) => article.url.push_str(value),
         Some(Field::Title) => article.title.push_str(value),
         Some(Field::PublishedAt) => article.published_at.push_str(value),
+        Some(Field::ThumbnailUrl) => article.thumbnail_url.push_str(value),
         None => {}
     }
 }
@@ -204,6 +224,9 @@ mod tests {
                     <image:image>
                         <image:loc>https://example.com/image.jpg</image:loc>
                     </image:image>
+                    <image:image>
+                        <image:loc>https://example.com/second-image.jpg</image:loc>
+                    </image:image>
                 </url>
             </urlset>"#,
         );
@@ -212,5 +235,9 @@ mod tests {
         assert_eq!(articles[0].title, "Example & headline");
         assert_eq!(articles[0].url, "https://example.com/article");
         assert!(articles[0].published_at.is_some());
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/image.jpg")
+        );
     }
 }

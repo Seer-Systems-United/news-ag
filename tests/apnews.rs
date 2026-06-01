@@ -38,4 +38,10 @@ fn apnews_world_endpoint_returns_articles() {
             .any(|article| !article.title.trim().is_empty()),
         "expected at least one apnews article with a title"
     );
+    assert!(
+        articles
+            .iter()
+            .any(|article| article.thumbnail_url().is_some()),
+        "expected at least one apnews article with a thumbnail"
+    );
 }

@@ -47,6 +47,7 @@ fn article_from_object(object: &Map<String, Value>) -> Option<Article> {
         format!("{BASE_URL}/watch/{production_id}"),
         ssr::object_string(object, "brand_name").map(|brand| vec![brand.to_string()]),
         ssr::object_string(object, "date").and_then(ssr::parse_date),
+        ssr::thumbnail_url(object, BASE_URL),
     ))
 }
 
@@ -65,7 +66,8 @@ mod tests {
                             "type": "vod",
                             "production_id": "ab5bd4ec715149fe9",
                             "brand_name": "Indisputable with Dr. Rashad Richey",
-                            "date": "2026-05-12T17:00:00.000-07:00"
+                            "date": "2026-05-12T17:00:00.000-07:00",
+                            "thumbnail_url": "/images/student-confronts-board.jpg"
                         }
                     ]
                 }
@@ -80,5 +82,9 @@ mod tests {
             &vec!["Indisputable with Dr. Rashad Richey".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://tyt.com/images/student-confronts-board.jpg")
+        );
     }
 }

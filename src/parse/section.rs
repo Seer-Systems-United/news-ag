@@ -9,6 +9,9 @@ pub enum ParseSection {
     Link {
         extract_method: ExtractMethod,
     },
+    Thumbnail {
+        extract_method: ExtractMethod,
+    },
     Date {
         extract_method: ExtractMethod,
         date_format: DataFormat,

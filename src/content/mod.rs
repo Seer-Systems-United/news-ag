@@ -575,6 +575,7 @@ mod tests {
             "https://example.com/article".to_string(),
             None,
             None,
+            None,
         )
         .with_inline_content("<p>Inline <strong>article</strong>.</p>")
     }

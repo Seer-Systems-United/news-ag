@@ -9,6 +9,9 @@ struct WordpressPost {
     link: Option<String>,
     title: Option<RenderedText>,
     yoast_head_json: Option<YoastHeadJson>,
+    jetpack_featured_media_url: Option<String>,
+    #[serde(rename = "_embedded")]
+    embedded: Option<WordpressEmbedded>,
     #[serde(rename = "_links")]
     links: Option<WordpressLinks>,
 }
@@ -21,6 +24,23 @@ struct RenderedText {
 #[derive(Debug, serde::Deserialize)]
 struct YoastHeadJson {
     author: Option<String>,
+    og_image: Option<Vec<YoastImage>>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct YoastImage {
+    url: Option<String>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct WordpressEmbedded {
+    #[serde(rename = "wp:featuredmedia")]
+    featured_media: Option<Vec<WordpressFeaturedMedia>>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct WordpressFeaturedMedia {
+    source_url: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -49,17 +69,25 @@ fn article_from_post(post: WordpressPost) -> Option<Article> {
         link,
         title,
         yoast_head_json,
+        jetpack_featured_media_url,
+        embedded,
         links,
     } = post;
 
+    let thumbnail_url = thumbnail_url(
+        yoast_head_json.as_ref(),
+        jetpack_featured_media_url,
+        embedded,
+    );
     let article = Article::new(
         clean_text(&title?.rendered?)?,
         text(link.as_deref())?,
-        authors(yoast_head_json),
+        authors(yoast_head_json.as_ref()),
         date_gmt
             .as_deref()
             .and_then(parse_wordpress_date)
             .or_else(|| date.as_deref().and_then(parse_wordpress_date)),
+        thumbnail_url,
     );
 
     Some(if let Some(url) = wordpress_content_url(links) {
@@ -76,9 +104,32 @@ fn wordpress_content_url(links: Option<WordpressLinks>) -> Option<reqwest::Url> 
         .find_map(|link| link.href?.parse().ok())
 }
 
-fn authors(yoast_head_json: Option<YoastHeadJson>) -> Option<Vec<String>> {
+fn authors(yoast_head_json: Option<&YoastHeadJson>) -> Option<Vec<String>> {
     let author = clean_text(yoast_head_json?.author.as_deref()?)?;
     Some(vec![author])
+}
+
+fn thumbnail_url(
+    yoast_head_json: Option<&YoastHeadJson>,
+    jetpack_featured_media_url: Option<String>,
+    embedded: Option<WordpressEmbedded>,
+) -> Option<String> {
+    jetpack_featured_media_url
+        .as_deref()
+        .and_then(|url| text(Some(url)))
+        .or_else(|| {
+            yoast_head_json?
+                .og_image
+                .as_ref()?
+                .iter()
+                .find_map(|image| text(image.url.as_deref()))
+        })
+        .or_else(|| {
+            embedded?
+                .featured_media?
+                .into_iter()
+                .find_map(|media| text(media.source_url.as_deref()))
+        })
 }
 
 fn parse_wordpress_date(value: &str) -> Option<chrono::DateTime<chrono::Utc>> {
@@ -183,7 +234,11 @@ mod tests {
                     "date_gmt": "2026-05-29T01:08:37",
                     "link": "https://example.com/news",
                     "title": { "rendered": "Gov. Jared Polis&#8217; first <em>vetoes</em>" },
-                    "yoast_head_json": { "author": "Jane Reporter" },
+                    "yoast_head_json": {
+                        "author": "Jane Reporter",
+                        "og_image": [{ "url": "https://example.com/yoast-image.jpg" }]
+                    },
+                    "jetpack_featured_media_url": "https://example.com/featured-image.jpg",
                     "_links": {
                         "self": [
                             { "href": "https://example.com/wp-json/wp/v2/posts/42" }
@@ -201,6 +256,10 @@ mod tests {
             &vec!["Jane Reporter".to_string()]
         );
         assert!(articles[0].published_at.is_some());
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/featured-image.jpg")
+        );
         assert!(matches!(
             articles[0].content_source(),
             crate::models::ArticleContentSource::WordpressRest(url)
@@ -213,6 +272,26 @@ mod tests {
         assert_eq!(
             super::clean_text("<em>Breaking</em>&hellip;"),
             Some("Breaking …".to_string())
+        );
+    }
+
+    #[test]
+    fn falls_back_to_yoast_thumbnail() {
+        let articles = super::parse_posts(
+            r#"[
+                {
+                    "link": "https://example.com/news",
+                    "title": { "rendered": "Example headline" },
+                    "yoast_head_json": {
+                        "og_image": [{ "url": "https://example.com/yoast-image.jpg" }]
+                    }
+                }
+            ]"#,
+        );
+
+        assert_eq!(
+            articles[0].thumbnail_url(),
+            Some("https://example.com/yoast-image.jpg")
         );
     }
 }
