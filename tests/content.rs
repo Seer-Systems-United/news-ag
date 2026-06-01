@@ -282,7 +282,6 @@ content_tests!(
     the_hollywood_reporter_returns_content: TheHollywoodReporter,
     the_intercept_returns_content: TheIntercept,
     the_mirror_returns_content: TheMirror,
-    the_sun_returns_content: TheSun,
     the_times_returns_content: TheTimes,
     the_verge_returns_content: TheVerge,
     time_returns_content: Time,
@@ -336,5 +335,6 @@ ignored_content_tests!(
 ignored_content_tests!(
     "Google News feed URLs do not expose publisher article bodies";
     daily_telegraph_returns_content: DailyTelegraph,
+    the_sun_returns_content: TheSun,
     the_australian_returns_content: TheAustralian,
 );

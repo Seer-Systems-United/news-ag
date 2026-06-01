@@ -32,7 +32,10 @@ use news_ag::{
     Oregonian, Pcmag, Scotsman, ScreenRant, StarLedger, TheBulwark, TheHindu,
     UnitedPressInternational, VentureBeat, Zeteo,
 };
-use news_ag::{models::Article, source::endpoint::Endpoint};
+use news_ag::{
+    models::Article,
+    source::endpoint::{Endpoint, EndpointScope},
+};
 
 #[cfg(not(feature = "async"))]
 fn get_articles(endpoint: &Endpoint) -> Vec<Article> {
@@ -67,6 +70,23 @@ fn assert_source_has_articles<S: Source>(source_name: &str) {
     );
 }
 
+fn assert_source_has_scopes<S: Source>(source_name: &str, expected: &[EndpointScope]) {
+    let endpoints = S::endpoints();
+
+    assert_eq!(
+        endpoints.len(),
+        expected.len(),
+        "expected {source_name} to define exactly the requested scopes"
+    );
+
+    for scope in expected {
+        assert!(
+            endpoints.iter().any(|endpoint| endpoint.scope == *scope),
+            "expected {source_name} to define a {scope:?} endpoint"
+        );
+    }
+}
+
 macro_rules! source_test {
     ($test_name:ident, $source:ty) => {
         #[test]
@@ -75,6 +95,178 @@ macro_rules! source_test {
         }
     };
 }
+
+macro_rules! source_scope_test {
+    ($test_name:ident, $source:ty, [$($scope:expr),+ $(,)?]) => {
+        #[test]
+        fn $test_name() {
+            assert_source_has_scopes::<$source>(stringify!($test_name), &[$($scope),+]);
+        }
+    };
+}
+
+source_scope_test!(
+    abc_news_defines_scoped_endpoints,
+    AbcNews,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Politics,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+        EndpointScope::Health,
+    ]
+);
+source_scope_test!(
+    bangkok_post_defines_scoped_endpoints,
+    BangkokPost,
+    [
+        EndpointScope::World,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+    ]
+);
+source_scope_test!(
+    cbs_news_defines_scoped_endpoints,
+    CbsNews,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Politics,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Science,
+        EndpointScope::Health,
+    ]
+);
+source_scope_test!(
+    christian_science_monitor_defines_scoped_endpoints,
+    ChristianScienceMonitor,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Politics,
+        EndpointScope::Science,
+    ]
+);
+source_scope_test!(
+    cnet_defines_scoped_endpoints,
+    Cnet,
+    [EndpointScope::Technology, EndpointScope::Health,]
+);
+source_scope_test!(
+    euronews_defines_scoped_endpoints,
+    Euronews,
+    [
+        EndpointScope::World,
+        EndpointScope::Business,
+        EndpointScope::Entertainment,
+    ]
+);
+source_scope_test!(
+    fox_news_defines_scoped_endpoints,
+    FoxNews,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Politics,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+        EndpointScope::Science,
+        EndpointScope::Health,
+    ]
+);
+source_scope_test!(
+    japan_times_defines_scoped_endpoints,
+    JapanTimes,
+    [
+        EndpointScope::World,
+        EndpointScope::Business,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+    ]
+);
+source_scope_test!(
+    nbc_news_defines_scoped_endpoints,
+    NbcNews,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Politics,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Science,
+        EndpointScope::Health,
+    ]
+);
+source_scope_test!(
+    sky_news_defines_scoped_endpoints,
+    SkyNews,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Politics,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+    ]
+);
+source_scope_test!(
+    south_china_morning_post_defines_scoped_endpoints,
+    SouthChinaMorningPost,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+        EndpointScope::Science,
+    ]
+);
+source_scope_test!(
+    straits_times_defines_scoped_endpoints,
+    StraitsTimes,
+    [
+        EndpointScope::World,
+        EndpointScope::Business,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+    ]
+);
+source_scope_test!(
+    the_hindu_defines_scoped_endpoints,
+    TheHindu,
+    [
+        EndpointScope::World,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+        EndpointScope::Science,
+        EndpointScope::Health,
+    ]
+);
+source_scope_test!(
+    times_of_india_defines_scoped_endpoints,
+    TimesOfIndia,
+    [
+        EndpointScope::World,
+        EndpointScope::US,
+        EndpointScope::Business,
+        EndpointScope::Technology,
+        EndpointScope::Entertainment,
+        EndpointScope::Sports,
+        EndpointScope::Science,
+    ]
+);
 
 source_test!(abc_news_returns_articles, AbcNews);
 source_test!(al_monitor_returns_articles, AlMonitor);
