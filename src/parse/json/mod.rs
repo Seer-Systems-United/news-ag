@@ -61,11 +61,17 @@ fn fetch(url: &reqwest::Url, headers: &[(String, String)], http1_only: bool) -> 
 
 #[cfg(feature = "async")]
 async fn fetch(url: &reqwest::Url, headers: &[(String, String)], http1_only: bool) -> String {
-    let mut client = reqwest::Client::builder();
+    let client = reqwest::Client::builder();
 
-    if http1_only {
-        client = client.http1_only();
-    }
+    #[cfg(not(target_arch = "wasm32"))]
+    let client = if http1_only {
+        client.http1_only()
+    } else {
+        client
+    };
+
+    #[cfg(target_arch = "wasm32")]
+    let _ = http1_only;
 
     let client = client.build().unwrap();
     let mut request = client.get(url.as_str());

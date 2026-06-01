@@ -91,16 +91,22 @@ fn fetch(url: &str) -> Result<String, ContentError> {
 async fn fetch(url: &str) -> Result<String, ContentError> {
     static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
-    CLIENT
+    let request = CLIENT
         .get_or_init(|| {
-            reqwest::Client::builder()
-                .timeout(REQUEST_TIMEOUT)
-                .build()
-                .unwrap()
+            let builder = reqwest::Client::builder();
+            #[cfg(not(target_arch = "wasm32"))]
+            let builder = builder.timeout(REQUEST_TIMEOUT);
+
+            builder.build().unwrap()
         })
         .get(url)
         .header(reqwest::header::ACCEPT_ENCODING, "identity")
-        .header(reqwest::header::USER_AGENT, USER_AGENT)
+        .header(reqwest::header::USER_AGENT, USER_AGENT);
+
+    #[cfg(target_arch = "wasm32")]
+    let request = request.timeout(REQUEST_TIMEOUT);
+
+    request
         .send()
         .await?
         .error_for_status()?

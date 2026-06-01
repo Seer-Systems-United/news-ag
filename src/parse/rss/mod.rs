@@ -67,12 +67,18 @@ async fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> Option<String> 
 
     let mut request = CLIENT
         .get_or_init(|| {
-            reqwest::Client::builder()
-                .timeout(REQUEST_TIMEOUT)
-                .build()
-                .unwrap()
+            let builder = reqwest::Client::builder();
+            #[cfg(not(target_arch = "wasm32"))]
+            let builder = builder.timeout(REQUEST_TIMEOUT);
+
+            builder.build().unwrap()
         })
         .get(url.as_str());
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        request = request.timeout(REQUEST_TIMEOUT);
+    }
 
     request = request.header(
         reqwest::header::USER_AGENT,

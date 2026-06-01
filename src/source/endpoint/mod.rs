@@ -2,6 +2,7 @@ use crate::parse::Format;
 use reqwest::Url;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum EndpointScope {
     World,
     US,

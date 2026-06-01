@@ -20,6 +20,7 @@ async fn main() {
 ```
 
 Enable the `async` feature to use the awaitable API. Without it, `get_articles()` and `get_content()` remain blocking.
+Enable the `serde` feature to serialize and deserialize articles and stable endpoint metadata.
 
 ## Sources
 
