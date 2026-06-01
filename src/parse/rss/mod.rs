@@ -1,14 +1,19 @@
-use std::io::Cursor;
+use std::{io::Cursor, sync::OnceLock, time::Duration};
 
 use crate::models::Article;
 
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
+
 #[cfg(not(feature = "async"))]
 pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
-    let body = fetch_body(url, true);
-    let articles = parse_body(&body);
+    let articles = fetch_body(url, true)
+        .map(|body| parse_body(&body))
+        .unwrap_or_default();
 
     if articles.is_empty() {
-        parse_body(&fetch_body(url, false))
+        fetch_body(url, false)
+            .map(|body| parse_body(&body))
+            .unwrap_or_default()
     } else {
         articles
     }
@@ -16,20 +21,33 @@ pub fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Art
 
 #[cfg(feature = "async")]
 pub async fn parse(url: &reqwest::Url, _rules: &[crate::parse::rule::Rule]) -> Vec<Article> {
-    let body = fetch_body(url, true).await;
-    let articles = parse_body(&body);
+    let articles = fetch_body(url, true)
+        .await
+        .map(|body| parse_body(&body))
+        .unwrap_or_default();
 
     if articles.is_empty() {
-        parse_body(&fetch_body(url, false).await)
+        fetch_body(url, false)
+            .await
+            .map(|body| parse_body(&body))
+            .unwrap_or_default()
     } else {
         articles
     }
 }
 
 #[cfg(not(feature = "async"))]
-fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
-    let client = reqwest::blocking::Client::builder().build().unwrap();
-    let mut request = client.get(url.as_str());
+fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> Option<String> {
+    static CLIENT: OnceLock<reqwest::blocking::Client> = OnceLock::new();
+
+    let mut request = CLIENT
+        .get_or_init(|| {
+            reqwest::blocking::Client::builder()
+                .timeout(REQUEST_TIMEOUT)
+                .build()
+                .unwrap()
+        })
+        .get(url.as_str());
 
     request = request.header(
         reqwest::header::USER_AGENT,
@@ -40,13 +58,21 @@ fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
         },
     );
 
-    request.send().unwrap().text().unwrap()
+    request.send().ok()?.error_for_status().ok()?.text().ok()
 }
 
 #[cfg(feature = "async")]
-async fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
-    let client = reqwest::Client::builder().build().unwrap();
-    let mut request = client.get(url.as_str());
+async fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> Option<String> {
+    static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+    let mut request = CLIENT
+        .get_or_init(|| {
+            reqwest::Client::builder()
+                .timeout(REQUEST_TIMEOUT)
+                .build()
+                .unwrap()
+        })
+        .get(url.as_str());
 
     request = request.header(
         reqwest::header::USER_AGENT,
@@ -57,7 +83,15 @@ async fn fetch_body(url: &reqwest::Url, use_user_agent: bool) -> String {
         },
     );
 
-    request.send().await.unwrap().text().await.unwrap()
+    request
+        .send()
+        .await
+        .ok()?
+        .error_for_status()
+        .ok()?
+        .text()
+        .await
+        .ok()
 }
 
 pub fn parse_body(body: &str) -> Vec<Article> {
@@ -245,6 +279,22 @@ fn decode_entities(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    #[cfg(not(feature = "async"))]
+    #[test]
+    fn returns_empty_articles_when_feed_request_fails() {
+        let url = "http://127.0.0.1:0/feed".parse().unwrap();
+
+        assert!(super::parse(&url, &[]).is_empty());
+    }
+
+    #[cfg(feature = "async")]
+    #[tokio::test]
+    async fn returns_empty_articles_when_feed_request_fails() {
+        let url = "http://127.0.0.1:0/feed".parse().unwrap();
+
+        assert!(super::parse(&url, &[]).await.is_empty());
+    }
+
     #[test]
     fn parses_rss_items() {
         let articles = super::parse_body(

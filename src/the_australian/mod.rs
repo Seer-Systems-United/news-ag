@@ -9,7 +9,7 @@ impl crate::source::Source for TheAustralian {
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,
-            "https://news.google.com/rss/search?q=site:theaustralian.com.au&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=site:www.theaustralian.com.au&hl=en-US&gl=US&ceid=US:en",
         )])
     }
 }

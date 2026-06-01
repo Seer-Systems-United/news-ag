@@ -10,39 +10,39 @@ impl crate::source::Source for WashingtonPost {
         feed::rss_endpoints(&[
             (
                 EndpointScope::World,
-                "https://feeds.washingtonpost.com/rss/world",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/world&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::US,
-                "https://feeds.washingtonpost.com/rss/national",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/national&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Politics,
-                "https://feeds.washingtonpost.com/rss/politics",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/politics&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Business,
-                "https://feeds.washingtonpost.com/rss/business",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/business&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Technology,
-                "https://feeds.washingtonpost.com/rss/business/technology",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/technology&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Entertainment,
-                "https://feeds.washingtonpost.com/rss/entertainment",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/entertainment&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Sports,
-                "https://feeds.washingtonpost.com/rss/sports",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/sports&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Science,
-                "https://feeds.washingtonpost.com/rss/national/health-science",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/health&hl=en-US&gl=US&ceid=US:en",
             ),
             (
                 EndpointScope::Health,
-                "https://feeds.washingtonpost.com/rss/national/health-science",
+                "https://news.google.com/rss/search?q=site:www.washingtonpost.com/health&hl=en-US&gl=US&ceid=US:en",
             ),
         ])
     }
