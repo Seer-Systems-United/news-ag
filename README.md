@@ -1,7 +1,9 @@
 # news-ag
-News aggregator library for rust projects. 170+ news sources, with more being added regularly. Provides a unified API for fetching articles and content from a wide variety of news outlets.
+
+A comprehensive news aggregator library for Rust. It provides a unified API for fetching articles and content from over 170 news outlets, with more sources being added regularly.
 
 ## Usage
+
 ```rust
 use news_ag::{
     ApNews,
@@ -10,23 +12,34 @@ use news_ag::{
 
 #[tokio::main]
 async fn main() {
-    let endpoint = ApNews::get_endpoint(EndpointScope::World).expect("apnews should define a world endpoint");
+    // Select an endpoint
+    let endpoint = ApNews::get_endpoint(EndpointScope::World)
+        .expect("AP News should define a world endpoint");
 
+    // Fetch current articles
     let articles = endpoint.get_articles().await;
-    let content = articles[0].get_content().await.expect("article content should be available");
+
+    // Retrieve content from an article
+    let content = articles[0]
+        .get_content()
+        .await
+        .expect("Article content should be available");
+
     println!("Articles from AP News: {articles:#?}");
-    println!("First article: {content}");
+    println!("First article content: {content}");
 }
 ```
 
-Enable the `async` feature to use the awaitable API. Without it, `get_articles()` and `get_content()` remain blocking.
-Enable the `serde` feature to serialize and deserialize articles and stable endpoint metadata.
+## Features
 
-## Sources
+- **`async`** (optional): Enables the asynchronous API. When disabled, `get_articles()` and `get_content()` are blocking calls.
+- **`serde`**: Provides serialization and deserialization support for articles and endpoint metadata.
 
-`(*)` Article listings are available, but article content cannot currently be retrieved anonymously from this source.
+## Supported Sources
 
-### Global News Agencies & Major Networks
+`(*)` Indicates that article listings are available, but full article content cannot currently be retrieved anonymously from this source.
+
+### Global News & Major Networks
 - [x] [AP News](https://apnews.com/)
 - [ ] [The Associated Press](https://www.ap.org/)
 - [x] [Reuters](https://www.reuters.com/) (*)
@@ -78,7 +91,7 @@ Enable the `serde` feature to serialize and deserialize articles and stable endp
 - [x] [VentureBeat](https://venturebeat.com/) (*)
 - [x] [Mashable](https://mashable.com/)
 
-### Regional News - United States
+### Regional: United States
 - [x] [New York Times](https://www.nytimes.com/) (*)
 - [x] [The Washington Post](https://www.washingtonpost.com/) (*)
 - [x] [The Chicago Tribune](https://www.chicagotribune.com/)
@@ -119,7 +132,7 @@ Enable the `serde` feature to serialize and deserialize articles and stable endp
 - [x] [The Oregonian](https://www.oregonlive.com/)
 - [x] [The Star-Ledger](https://www.nj.com/starledger/)
 
-### Regional News - Canada
+### Regional: Canada
 - [x] [The Globe and Mail](https://www.theglobeandmail.com/)
 - [x] [The Toronto Star](https://www.thestar.com/)
 - [x] [The National Post](https://nationalpost.com/)
@@ -137,7 +150,7 @@ Enable the `serde` feature to serialize and deserialize articles and stable endp
 - [ ] [CTV News](https://www.ctvnews.ca/)
 - [x] [La Presse](https://www.lapresse.ca/)
 
-### Regional News - United Kingdom & Ireland
+### Regional: United Kingdom & Ireland
 - [x] [The Guardian](https://www.theguardian.com/international)
 - [x] [The Independent](https://www.independent.co.uk/)
 - [x] [The Times](https://www.thetimes.co.uk/)
@@ -151,7 +164,7 @@ Enable the `serde` feature to serialize and deserialize articles and stable endp
 - [x] [The Belfast Telegraph](https://www.belfasttelegraph.co.uk/)
 - [x] [The Scotsman](https://www.scotsman.com/)
 
-### Regional News - Asia, Oceania & Middle East
+### Regional: Asia, Oceania & Middle East
 - [x] [South China Morning Post](https://www.scmp.com/)
 - [x] [The Japan Times](https://www.japantimes.co.jp/)
 - [x] [The Times of India](https://timesofindia.indiatimes.com/)
@@ -169,7 +182,7 @@ Enable the `serde` feature to serialize and deserialize articles and stable endp
 - [x] [The Bangkok Post](https://www.bangkokpost.com/)
 - [x] [The Hindu](https://www.thehindu.com/)
 
-### Regional News - Europe & Latin America
+### Regional: Europe & Latin America
 - [x] [El País](https://elpais.com/elpais/inenglish.html)
 - [x] [Le Monde](https://www.lemonde.fr/en/)
 - [x] [Der Spiegel](https://www.spiegel.de/international/)
@@ -239,6 +252,7 @@ Enable the `serde` feature to serialize and deserialize articles and stable endp
 - [x] [NME](https://www.nme.com/)
 
 ## License
+
 This project is licensed under either of the following licenses, at your option:
 
 - [Apache License, Version 2.0](LICENSE)
