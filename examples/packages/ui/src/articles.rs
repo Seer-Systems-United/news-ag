@@ -10,10 +10,26 @@ pub fn Articles() -> Element {
 
     use_effect(move || {
         spawn(async move {
-            if let Ok(mut data) = api::ap_news_get_articles().await {
-                data.sort_by(|a, b| b.published_at.cmp(&a.published_at));
-                articles.set(data);
+            let mut data = Vec::<Article>::new();
+
+            if let Ok(mut d) = api::ap_get_articles().await {
+                data.append(&mut d);
             }
+
+            if let Ok(mut d) = api::npr_get_articles().await {
+                data.append(&mut d);
+            }
+
+            if let Ok(mut d) = api::reuters_get_articles().await {
+                data.append(&mut d);
+            }
+
+            if let Ok(mut d) = api::al_jazeera_get_articles().await {
+                data.append(&mut d);
+            }
+
+            data.sort_by(|a, b| b.published_at.cmp(&a.published_at));
+            articles.set(data);
         });
     });
 
