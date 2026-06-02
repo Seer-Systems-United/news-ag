@@ -10,7 +10,8 @@ pub fn Articles() -> Element {
 
     use_effect(move || {
         spawn(async move {
-            if let Ok(data) = api::ap_news_get_articles().await {
+            if let Ok(mut data) = api::ap_news_get_articles().await {
+                data.sort_by(|a, b| b.published_at.cmp(&a.published_at));
                 articles.set(data);
             }
         });
@@ -29,9 +30,10 @@ pub fn Articles() -> Element {
                 for article in articles().iter() {
                     div {
                         key: "{article.title}",
+                        style: "display: flex; flex-direction: column; height: 100%;",
                         a {
                             href: "{article.url}",
-                            style: "display: block; color: inherit; text-decoration: none;",
+                            style: "display: flex; flex-direction: column; height: 100%; color: inherit; text-decoration: none;",
                             img {
                                 src: article.thumbnail_url.as_deref().unwrap_or(FALLBACK_THUMBNAIL_URL),
                                 width: "100%"
@@ -39,6 +41,10 @@ pub fn Articles() -> Element {
                             p {
                                 style: "text-align: center;",
                                 i { "{article.title}" }
+                            }
+                            p {
+                                style: "margin-top: auto; text-align: center; font-size: 0.9rem; color: #666;",
+                                "{article.published_at.map(|date| date.format(\"%Y-%m-%d\").to_string()).unwrap_or_else(|| \"Unknown date\".to_string())}"
                             }
                         }
                     }
