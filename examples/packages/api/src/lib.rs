@@ -8,7 +8,7 @@ use news_ag::{
 };
 
 /// Get articles from the AP news API.
-#[post("/api/ap-news/get-articles")]
+#[get("/api/ap-news/get-articles")]
 pub async fn ap_news_get_articles() -> Result<Vec<Article>, ServerFnError> {
     let endpoint = ApNews::get_endpoint(EndpointScope::World)
         .ok_or_else(|| ServerFnError::new("AP News does not define a world endpoint"))?;
