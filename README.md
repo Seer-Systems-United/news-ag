@@ -33,6 +33,7 @@ async fn main() {
 ## Features
 
 - **`async`** (optional): Enables the asynchronous API. When disabled, `get_articles()` and `get_content()` are blocking calls.
+- **`rkyv`**: Provides zero-copy serialization and deserialization support for articles and endpoint metadata.
 - **`serde`**: Provides serialization and deserialization support for articles and endpoint metadata.
 
 ## Supported Sources

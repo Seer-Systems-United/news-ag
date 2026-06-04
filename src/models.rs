@@ -13,13 +13,22 @@ impl Default for ArticleContentSource {
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "rkyv",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 pub struct Article {
     pub title: String,
     pub url: String,
     pub authors: Option<Vec<String>>,
+    #[cfg_attr(
+        feature = "rkyv",
+        rkyv(with = rkyv::with::Map<rkyv_with::UtcDateTime>)
+    )]
     pub published_at: Option<chrono::DateTime<chrono::Utc>>,
     pub thumbnail_url: Option<String>,
     #[cfg_attr(feature = "serde", serde(skip, default))]
+    #[cfg_attr(feature = "rkyv", rkyv(with = rkyv::with::Skip))]
     content_source: ArticleContentSource,
 }
 
@@ -88,34 +97,129 @@ impl Article {
     }
 }
 
-#[cfg(all(test, feature = "serde"))]
+#[cfg(feature = "rkyv")]
+mod rkyv_with {
+    use std::{error::Error, fmt};
+
+    use chrono::{DateTime, Utc};
+    use rkyv::{
+        Archive, Archived, Deserialize, Place, Resolver, Serialize,
+        rancor::{Fallible, Source},
+        with::{ArchiveWith, DeserializeWith, SerializeWith},
+    };
+
+    type Timestamp = (i64, u32);
+
+    pub struct UtcDateTime;
+
+    impl ArchiveWith<DateTime<Utc>> for UtcDateTime {
+        type Archived = Archived<Timestamp>;
+        type Resolver = Resolver<Timestamp>;
+
+        fn resolve_with(
+            field: &DateTime<Utc>,
+            resolver: Self::Resolver,
+            out: Place<Self::Archived>,
+        ) {
+            timestamp(field).resolve(resolver, out);
+        }
+    }
+
+    impl<S> SerializeWith<DateTime<Utc>, S> for UtcDateTime
+    where
+        S: Fallible + ?Sized,
+        Timestamp: Serialize<S>,
+    {
+        fn serialize_with(
+            field: &DateTime<Utc>,
+            serializer: &mut S,
+        ) -> Result<Self::Resolver, S::Error> {
+            timestamp(field).serialize(serializer)
+        }
+    }
+
+    impl<D> DeserializeWith<Archived<Timestamp>, DateTime<Utc>, D> for UtcDateTime
+    where
+        D: Fallible + ?Sized,
+        D::Error: Source,
+        Archived<Timestamp>: Deserialize<Timestamp, D>,
+    {
+        fn deserialize_with(
+            field: &Archived<Timestamp>,
+            deserializer: &mut D,
+        ) -> Result<DateTime<Utc>, D::Error> {
+            let (seconds, nanoseconds) = field.deserialize(deserializer)?;
+
+            DateTime::from_timestamp(seconds, nanoseconds)
+                .ok_or_else(|| D::Error::new(InvalidTimestamp))
+        }
+    }
+
+    fn timestamp(date_time: &DateTime<Utc>) -> Timestamp {
+        (date_time.timestamp(), date_time.timestamp_subsec_nanos())
+    }
+
+    #[derive(Debug)]
+    struct InvalidTimestamp;
+
+    impl fmt::Display for InvalidTimestamp {
+        fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+            formatter.write_str("archived article contains an invalid timestamp")
+        }
+    }
+
+    impl Error for InvalidTimestamp {}
+}
+
+#[cfg(all(test, any(feature = "rkyv", feature = "serde")))]
 mod tests {
-    #[test]
-    fn article_round_trips_through_json() {
+    fn article() -> super::Article {
         let published_at = chrono::DateTime::parse_from_rfc3339("2026-06-01T18:30:00Z")
             .unwrap()
             .with_timezone(&chrono::Utc);
-        let article = super::Article::new(
+
+        super::Article::new(
             "Example headline".to_string(),
             "https://example.com/article".to_string(),
             Some(vec!["Reporter".to_string()]),
             Some(published_at),
             Some("https://example.com/image.jpg".to_string()),
         )
-        .with_inline_content("<p>Runtime-only content source.</p>");
+        .with_inline_content("<p>Runtime-only content source.</p>")
+    }
 
+    fn assert_article_fields_match(actual: &super::Article, expected: &super::Article) {
+        assert_eq!(actual.title(), expected.title());
+        assert_eq!(actual.url(), expected.url());
+        assert_eq!(actual.authors(), expected.authors());
+        assert_eq!(actual.published_at(), expected.published_at());
+        assert_eq!(actual.thumbnail_url(), expected.thumbnail_url());
+        assert!(matches!(
+            actual.content_source(),
+            super::ArticleContentSource::WebPage
+        ));
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn article_round_trips_through_json() {
+        let article = article();
         let json = serde_json::to_string(&article).unwrap();
         let decoded: super::Article = serde_json::from_str(&json).unwrap();
 
-        assert_eq!(decoded.title(), article.title());
-        assert_eq!(decoded.url(), article.url());
-        assert_eq!(decoded.authors(), article.authors());
-        assert_eq!(decoded.published_at(), article.published_at());
-        assert_eq!(decoded.thumbnail_url(), article.thumbnail_url());
-        assert!(matches!(
-            decoded.content_source(),
-            super::ArticleContentSource::WebPage
-        ));
+        assert_article_fields_match(&decoded, &article);
         assert!(!json.contains("content_source"));
+    }
+
+    #[cfg(feature = "rkyv")]
+    #[test]
+    fn article_round_trips_through_rkyv() {
+        let article = article();
+        let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&article).unwrap();
+        let archived =
+            rkyv::access::<rkyv::Archived<super::Article>, rkyv::rancor::Error>(&bytes).unwrap();
+        let decoded = rkyv::deserialize::<super::Article, rkyv::rancor::Error>(archived).unwrap();
+
+        assert_article_fields_match(&decoded, &article);
     }
 }
