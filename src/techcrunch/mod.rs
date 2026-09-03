@@ -12,6 +12,9 @@ impl crate::source::Source for TechCrunch {
     fn name() -> &'static str {
         crate::source::feed::source_name(202)
     }
+    fn logo_url() -> &'static str {
+        "https://www.bloomberg.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::Technology, "https://techcrunch.com/feed/")])
     }

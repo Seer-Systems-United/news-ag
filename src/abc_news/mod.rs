@@ -12,6 +12,9 @@ impl crate::source::Source for AbcNews {
     fn name() -> &'static str {
         crate::source::feed::source_name(6)
     }
+    fn logo_url() -> &'static str {
+        "https://www.aljazeera.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

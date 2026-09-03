@@ -12,6 +12,9 @@ impl crate::source::Source for DemocracyNow {
     fn name() -> &'static str {
         crate::source::feed::source_name(805)
     }
+    fn logo_url() -> &'static str {
+        "https://www.democracynow.org/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Politics,

@@ -17,6 +17,9 @@ impl crate::source::Source for Reuters {
     fn name() -> &'static str {
         crate::source::feed::source_name(3)
     }
+    fn logo_url() -> &'static str {
+        "https://www.bbc.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         vec![
             endpoint(EndpointScope::World, config::WORLD_PATH),

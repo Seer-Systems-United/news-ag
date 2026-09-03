@@ -19,6 +19,9 @@ impl crate::source::Source for TheTimes {
     fn name() -> &'static str {
         crate::source::feed::source_name(502)
     }
+    fn logo_url() -> &'static str {
+        "https://www.thetimes.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::World, BASE_URL)], parse_articles)
     }

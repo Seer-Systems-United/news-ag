@@ -12,6 +12,9 @@ impl crate::source::Source for Economist {
     fn name() -> &'static str {
         crate::source::feed::source_name(101)
     }
+    fn logo_url() -> &'static str {
+        "https://www.wfae.org/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

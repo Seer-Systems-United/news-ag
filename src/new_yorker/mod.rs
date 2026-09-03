@@ -12,6 +12,9 @@ impl crate::source::Source for NewYorker {
     fn name() -> &'static str {
         crate::source::feed::source_name(800)
     }
+    fn logo_url() -> &'static str {
+        "https://www.newyorker.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Entertainment,

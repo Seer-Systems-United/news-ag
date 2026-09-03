@@ -12,6 +12,9 @@ impl crate::source::Source for TheIntercept {
     fn name() -> &'static str {
         crate::source::feed::source_name(803)
     }
+    fn logo_url() -> &'static str {
+        "https://theintercept.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::Politics, "https://theintercept.com/feed/")])
     }

@@ -12,6 +12,9 @@ impl crate::source::Source for StraitsTimes {
     fn name() -> &'static str {
         crate::source::feed::source_name(603)
     }
+    fn logo_url() -> &'static str {
+        "https://www.straitstimes.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

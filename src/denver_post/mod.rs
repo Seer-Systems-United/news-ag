@@ -12,6 +12,9 @@ impl crate::source::Source for DenverPost {
     fn name() -> &'static str {
         crate::source::feed::source_name(309)
     }
+    fn logo_url() -> &'static str {
+        "https://www.pcmag.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::US, "https://www.denverpost.com")])
     }

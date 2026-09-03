@@ -12,6 +12,9 @@ impl crate::source::Source for TheAge {
     fn name() -> &'static str {
         crate::source::feed::source_name(607)
     }
+    fn logo_url() -> &'static str {
+        "https://www.theage.com.au/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

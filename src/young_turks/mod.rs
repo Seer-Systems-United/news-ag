@@ -19,6 +19,9 @@ impl crate::source::Source for YoungTurks {
     fn name() -> &'static str {
         crate::source::feed::source_name(806)
     }
+    fn logo_url() -> &'static str {
+        "https://www.turkishpress.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::Politics, BASE_URL)], parse_articles)
     }

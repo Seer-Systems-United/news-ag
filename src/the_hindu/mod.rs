@@ -12,6 +12,9 @@ impl crate::source::Source for TheHindu {
     fn name() -> &'static str {
         crate::source::feed::source_name(615)
     }
+    fn logo_url() -> &'static str {
+        "https://www.thehindu.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

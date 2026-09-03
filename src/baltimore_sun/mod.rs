@@ -12,6 +12,9 @@ impl crate::source::Source for BaltimoreSun {
     fn name() -> &'static str {
         crate::source::feed::source_name(320)
     }
+    fn logo_url() -> &'static str {
+        "https://www.techspot.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::US, "https://www.baltimoresun.com")])
     }

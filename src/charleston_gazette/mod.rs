@@ -12,6 +12,9 @@ impl crate::source::Source for CharlestonGazette {
     fn name() -> &'static str {
         crate::source::feed::source_name(333)
     }
+    fn logo_url() -> &'static str {
+        "https://www.wvgazettemail.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::US,

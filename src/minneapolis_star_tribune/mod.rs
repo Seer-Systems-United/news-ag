@@ -12,6 +12,9 @@ impl crate::source::Source for MinneapolisStarTribune {
     fn name() -> &'static str {
         crate::source::feed::source_name(313)
     }
+    fn logo_url() -> &'static str {
+        "https://www.digitaltrends.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::US, "https://www.startribune.com/rss")])
     }

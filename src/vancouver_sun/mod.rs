@@ -12,6 +12,9 @@ impl crate::source::Source for VancouverSun {
     fn name() -> &'static str {
         crate::source::feed::source_name(403)
     }
+    fn logo_url() -> &'static str {
+        "https://www.vancouversun.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::World, "https://vancouversun.com/feed")])
     }

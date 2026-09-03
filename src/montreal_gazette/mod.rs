@@ -12,6 +12,9 @@ impl crate::source::Source for MontrealGazette {
     fn name() -> &'static str {
         crate::source::feed::source_name(406)
     }
+    fn logo_url() -> &'static str {
+        "https://montrealgazette.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::World, "https://montrealgazette.com")])
     }

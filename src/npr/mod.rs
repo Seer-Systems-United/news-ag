@@ -12,6 +12,9 @@ impl crate::source::Source for Npr {
     fn name() -> &'static str {
         crate::source::feed::source_name(14)
     }
+    fn logo_url() -> &'static str {
+        "https://www.bbc.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (EndpointScope::World, "https://feeds.npr.org/1004/rss.xml"),

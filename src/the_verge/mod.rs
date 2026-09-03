@@ -12,6 +12,9 @@ impl crate::source::Source for TheVerge {
     fn name() -> &'static str {
         crate::source::feed::source_name(204)
     }
+    fn logo_url() -> &'static str {
+        "https://www.businessinsider.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Technology,

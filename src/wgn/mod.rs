@@ -12,6 +12,9 @@ impl crate::source::Source for Wgn {
     fn name() -> &'static str {
         crate::source::feed::source_name(334)
     }
+    fn logo_url() -> &'static str {
+        "https://wgntv.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::US, "https://wgntv.com/feed/")])
     }

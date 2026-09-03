@@ -45,6 +45,16 @@ fn assert_has_name<S: Source>(expected_name: &str) {
     );
 }
 
+/// Macro-driven helper: assert a source reports a non-empty logo URL.
+fn assert_has_logo<S: Source>() {
+    let logo = S::logo_url();
+    assert!(
+        !logo.is_empty() && logo.starts_with("http"),
+        "source {} reported invalid logo_url {logo:?}",
+        S::name()
+    );
+}
+
 macro_rules! require_names {
     ( $($source:ty as $label:literal),+ $(,)? ) => {
         $(
@@ -160,5 +170,53 @@ fn every_source_reports_a_name() {
         TexasTribune as "The Texas Tribune",
         TomsGuide as "Tom's Guide",
         Truthout as "Truthout",
+    );
+}
+
+macro_rules! require_logos {
+    ( $($source:ty),+ $(,)? ) => {
+        $(
+            assert_has_logo::<$source>();
+        )+
+    };
+}
+
+#[test]
+fn every_source_reports_a_logo_url() {
+    require_logos!(
+        AbcNews, AlJazeera, AlMonitor, AmericanConservative, AmericanProspect, Alternet,
+        ApNews, ArabNews, ArsTechnica, AtlantaJournalConstitution, Atlantic, Axios, BaltimoreSun,
+        BangkokPost, BangkokPostBusiness, BangkokPostWorld, BbcNews, BalkanInsight,
+        BelfastTelegraph, Benzinga, Billboard, Bloomberg, BostonGlobe, BusinessInsider,
+        CalgaryHerald, CbsNews, CharlestonGazette, CharlestonGazetteMail, CharlestonPostAndCourier,
+        ChicagoTribune, ChristianScienceMonitor, CincinnatiEnquirer, Clarin,
+        ClevelandPlainDealer, Cnbc, Cnet, Cnn, ColumbusDispatch, CommonDreams, Conversation,
+        CorriereDellaSera, CyprusMail, DailyBeast, DailyCaller, DailyKos, DailyMail,
+        DailyTelegraph, DailyWire, DallasMorningNews, DemocracyNow, DenverPost, DerSpiegel,
+        DetroitFreePress, DeutscheWelle, DropSiteNews, Economist, EdmontonJournal, ElPais, Empire,
+        Engadget, Eurasianet, Euronews, Express, FastCompany, FinancialTimes, FolhaDeSPaulo,
+        Forbes, ForeignPolicy, Fortune, FoxNews, France24, FranceInfo,
+        FrankfurterAllgemeineZeitung, GameSpot, Gizmodo, GlobalNews, GlobalVoices, GlobeAndMail,
+        Guardian, Haaretz, HalifaxChronicleHerald, HartfordCourant, HeraldScotland,
+        HoustonChronicle, HuffingtonPost, Ign, Independent, IndependentUK, IndianapolisStar,
+        InterceptFirstLook, InvestorsBusinessDaily, IrishTimes, Jacobin, JapanTimes,
+        JerusalemPost, Kiplinger, Kotaku, KyivIndependent, LaPresse, LaRepubblica, LeMonde,
+        LosAngelesTimes, LouisvilleCourierJournal, MarketWatch, Mashable, MilitaryTimes,
+        MiddleEastEye, MinneapolisStarTribune, MirrorUK, MontrealGazette, MoscowTimes, MotherJones,
+        Msnbc, NerdWallet, NashvilleTennessean, Nation, NationalPost, NationalReview, Nature,
+        NbcNews, NewRepublic, NewScientist, NewStatesman, NewYorkPost, NewYorkTimes, NewYorker,
+        Newsweek, NHKWorld, NikkeiAsia, NikkeiEnglish, Nme, Npr, OklahomaCityOklahoman,
+        Oregonian, OrlandoSentinel, OttawaCitizen, Pcmag, PhiladelphiaInquirer, Pitchfork,
+        PittsburghPostGazette, Politico, Polygon, ProPublica, ProvidenceJournal, Quartz, RFI,
+        RawStory, Reason, ReginaLeaderPost, Reuters, RichmondTimesDispatch, RollingStone,
+        SaskatoonStarPhoenix, Salon, ScienceMagazine, ScientificAmerican, Scotsman, ScreenRant,
+        SeattleTimes, Slashdot, SkyNews, SouthChinaMorningPost, Spectator, StJohnsTelegram,
+        StLouisPostDispatch, StarLedger, StraitsTimes, SydneyMorningHerald, TampaBayTimes,
+        TechCrunch, Techdirt, Techmeme, Telegraph, TelegraphUK, TheAge, TheArtNewspaper,
+        TheAustralian, TheBlaze, TheBulwark, TheHill, TheHindu, TheHollywoodReporter,
+        TheIntercept, TheMirror, TheSun, TheTimes, TheVerge, TexasTribune, Time, TimesOfIndia,
+        TomsGuide, TorontoStar, Truthout, UnitedPressInternational, UsaToday, VancouverSun,
+        Variety, VentureBeat, ViceNews, Vox, WallStreetJournal, WashingtonPost, Wgn,
+        WinnipegFreePress, Wired, YoungTurks, Zeteo,
     );
 }

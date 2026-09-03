@@ -12,6 +12,9 @@ impl crate::source::Source for JapanTimes {
     fn name() -> &'static str {
         crate::source::feed::source_name(601)
     }
+    fn logo_url() -> &'static str {
+        "https://www.japantimes.co.jp/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

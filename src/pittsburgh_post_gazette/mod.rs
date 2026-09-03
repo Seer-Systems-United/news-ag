@@ -12,6 +12,9 @@ impl crate::source::Source for PittsburghPostGazette {
     fn name() -> &'static str {
         crate::source::feed::source_name(317)
     }
+    fn logo_url() -> &'static str {
+        "https://www.techradar.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::US, "https://www.post-gazette.com/rss")])
     }

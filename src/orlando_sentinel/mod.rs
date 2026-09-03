@@ -12,6 +12,9 @@ impl crate::source::Source for OrlandoSentinel {
     fn name() -> &'static str {
         crate::source::feed::source_name(316)
     }
+    fn logo_url() -> &'static str {
+        "https://www.tomshardware.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::US, "https://www.orlandosentinel.com")])
     }

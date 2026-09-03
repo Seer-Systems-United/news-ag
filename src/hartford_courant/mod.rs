@@ -12,6 +12,9 @@ impl crate::source::Source for HartfordCourant {
     fn name() -> &'static str {
         crate::source::feed::source_name(329)
     }
+    fn logo_url() -> &'static str {
+        "https://www.courant.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::US, "https://www.courant.com")])
     }

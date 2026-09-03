@@ -37,6 +37,24 @@ fn all_sources_have_non_empty_names() {
 }
 
 #[test]
+fn all_sources_have_logo_url() {
+    let sources = all_sources();
+    for source in &sources {
+        assert!(
+            !source.logo_url.is_empty(),
+            "source {} should have a non-empty logo_url",
+            source.name
+        );
+        assert!(
+            source.logo_url.starts_with("http"),
+            "source {} logo_url should be a URL, got {}",
+            source.name,
+            source.logo_url
+        );
+    }
+}
+
+#[test]
 fn all_sources_have_at_least_one_scope() {
     let sources = all_sources();
     for source in &sources {

@@ -9,6 +9,7 @@ use crate::source::{Source, endpoint::EndpointScope};
 pub struct SourceInfo {
     pub id: uuid::Uuid,
     pub name: &'static str,
+    pub logo_url: &'static str,
     pub scopes: Vec<EndpointScope>,
 }
 
@@ -17,6 +18,7 @@ fn source_info<S: Source>() -> SourceInfo {
     SourceInfo {
         id: S::id(),
         name: S::name(),
+        logo_url: S::logo_url(),
         scopes,
     }
 }

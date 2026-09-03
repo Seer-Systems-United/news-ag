@@ -12,6 +12,9 @@ impl crate::source::Source for BostonGlobe {
     fn name() -> &'static str {
         crate::source::feed::source_name(311)
     }
+    fn logo_url() -> &'static str {
+        "https://www.tomsguide.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::US,

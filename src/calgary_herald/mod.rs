@@ -12,6 +12,9 @@ impl crate::source::Source for CalgaryHerald {
     fn name() -> &'static str {
         crate::source::feed::source_name(404)
     }
+    fn logo_url() -> &'static str {
+        "https://calgaryherald.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::World, "https://calgaryherald.com/feed")])
     }

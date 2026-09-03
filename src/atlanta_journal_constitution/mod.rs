@@ -18,6 +18,9 @@ impl crate::source::Source for AtlantaJournalConstitution {
     fn name() -> &'static str {
         crate::source::feed::source_name(307)
     }
+    fn logo_url() -> &'static str {
+        "https://mashable.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::US, BASE_URL)], parse_articles)
     }

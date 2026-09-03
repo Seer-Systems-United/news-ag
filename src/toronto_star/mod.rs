@@ -12,6 +12,9 @@ impl crate::source::Source for TorontoStar {
     fn name() -> &'static str {
         crate::source::feed::source_name(401)
     }
+    fn logo_url() -> &'static str {
+        "https://www.thestar.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

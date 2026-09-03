@@ -12,6 +12,9 @@ impl crate::source::Source for DailyBeast {
     fn name() -> &'static str {
         crate::source::feed::source_name(804)
     }
+    fn logo_url() -> &'static str {
+        "https://www.thedailybeast.com/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Politics,

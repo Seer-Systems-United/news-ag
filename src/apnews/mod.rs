@@ -59,6 +59,9 @@ impl crate::source::Source for ApNews {
     fn name() -> &'static str {
         crate::source::feed::source_name(1)
     }
+    fn logo_url() -> &'static str {
+        "https://www.ap.org/favicon.svg"
+    }
     fn endpoints() -> Vec<crate::source::endpoint::Endpoint> {
         vec![
             crate::source::endpoint::Endpoint {

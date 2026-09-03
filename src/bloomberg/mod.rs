@@ -12,6 +12,9 @@ impl crate::source::Source for Bloomberg {
     fn name() -> &'static str {
         crate::source::feed::source_name(102)
     }
+    fn logo_url() -> &'static str {
+        "https://www.wamu.org/favicon.ico"
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (
