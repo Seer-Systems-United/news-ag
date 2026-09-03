@@ -26,10 +26,16 @@ use news_ag::{
     YoungTurks, source::Source,
 };
 use news_ag::{
-    AlMonitor, AmericanConservative, BangkokPost, BelfastTelegraph, Cnet, CommonDreams,
-    CorriereDellaSera, DropSiteNews, Euronews, FastCompany, FrankfurterAllgemeineZeitung, GameSpot,
-    GlobalNews, HeraldScotland, Kiplinger, LaPresse, LaRepubblica, MarketWatch, Mashable, Nme,
-    Oregonian, Pcmag, Scotsman, ScreenRant, StarLedger, TheBulwark, TheHindu,
+    AlMonitor, AmericanConservative, Alternet, ArabNews, BangkokPost,
+    BangkokPostBusiness, BangkokPostWorld, BalkanInsight, BelfastTelegraph, Benzinga, Cnet,
+    CommonDreams, Conversation, CorriereDellaSera, CyprusMail, DropSiteNews,
+    Eurasianet, Euronews, FastCompany, FranceInfo, FrankfurterAllgemeineZeitung, GameSpot,
+    GlobalVoices, GlobalNews, HeraldScotland, IndependentUK,
+    InterceptFirstLook, InvestorsBusinessDaily, Kiplinger, LaPresse,
+    LaRepubblica, MarketWatch, Mashable, MilitaryTimes, MirrorUK,
+    NerdWallet, NHKWorld, NikkeiEnglish, Nme, Oregonian, Pcmag, RFI, RawStory, Salon,
+    Scotsman, ScreenRant, Slashdot, StarLedger, Techdirt, Techmeme, TelegraphUK, TheBulwark,
+    TheHindu, TexasTribune, TomsGuide, Truthout,
     UnitedPressInternational, VentureBeat, Zeteo,
 };
 use news_ag::{ApNews, Reuters};
@@ -758,6 +764,36 @@ fn reuters_reports_name() {
     assert_eq!(Reuters::name(), "Reuters");
 }
 
+source_test!(alternet_returns_articles, Alternet);
+source_test!(arab_news_returns_articles, ArabNews);
+source_test!(bangkok_post_business_returns_articles, BangkokPostBusiness);
+source_test!(bangkok_post_world_returns_articles, BangkokPostWorld);
+source_test!(balkan_insight_returns_articles, BalkanInsight);
+source_test!(benzinga_returns_articles, Benzinga);
+source_test!(cyprus_mail_returns_articles, CyprusMail);
+source_test!(eurasianet_returns_articles, Eurasianet);
+source_test!(france_info_returns_articles, FranceInfo);
+source_test!(global_voices_returns_articles, GlobalVoices);
+source_test!(independent_uk_returns_articles, IndependentUK);
+source_test!(intercept_first_look_returns_articles, InterceptFirstLook);
+source_test!(investors_business_daily_returns_articles, InvestorsBusinessDaily);
+source_test!(military_times_returns_articles, MilitaryTimes);
+source_test!(mirror_uk_returns_articles, MirrorUK);
+source_test!(nerdwallet_returns_articles, NerdWallet);
+source_test!(nhk_world_returns_articles, NHKWorld);
+source_test!(nikkei_english_returns_articles, NikkeiEnglish);
+source_test!(rfi_returns_articles, RFI);
+source_test!(raw_story_returns_articles, RawStory);
+source_test!(salon_returns_articles, Salon);
+source_test!(slashdot_returns_articles, Slashdot);
+source_test!(techdirt_returns_articles, Techdirt);
+source_test!(techmeme_returns_articles, Techmeme);
+source_test!(telegraph_uk_returns_articles, TelegraphUK);
+source_test!(the_conversation_returns_articles, Conversation);
+source_test!(texas_tribune_returns_articles, TexasTribune);
+source_test!(toms_guide_returns_articles, TomsGuide);
+source_test!(truthout_returns_articles, Truthout);
+
 #[test]
 fn all_macro_sources_report_distinct_names() {
     assert_eq!(Billboard::name(), "Billboard");
@@ -769,4 +805,14 @@ fn all_macro_sources_report_distinct_names() {
     assert_eq!(Scotsman::name(), "The Scotsman");
     assert_eq!(Wired::name(), "Wired");
     assert_eq!(ArsTechnica::name(), "Ars Technica");
+    assert_eq!(TexasTribune::name(), "The Texas Tribune");
+    assert_eq!(TomsGuide::name(), "Tom's Guide");
+    assert_eq!(Conversation::name(), "The Conversation");
+    assert_eq!(RFI::name(), "Radio France Internationale");
+    assert_eq!(NHKWorld::name(), "NHK World");
+    assert_eq!(ArabNews::name(), "Arab News");
+    assert_eq!(GlobalVoices::name(), "Global Voices");
+    assert_eq!(Benzinga::name(), "Benzinga");
+    assert_eq!(NerdWallet::name(), "NerdWallet");
+    assert_eq!(MilitaryTimes::name(), "Military Times");
 }
