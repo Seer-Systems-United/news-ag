@@ -9,6 +9,9 @@ impl crate::source::Source for Express {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(507)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(507)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

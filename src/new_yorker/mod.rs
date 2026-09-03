@@ -9,6 +9,9 @@ impl crate::source::Source for NewYorker {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(800)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(800)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Entertainment,

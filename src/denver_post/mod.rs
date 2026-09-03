@@ -9,6 +9,9 @@ impl crate::source::Source for DenverPost {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(309)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(309)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::US, "https://www.denverpost.com")])
     }

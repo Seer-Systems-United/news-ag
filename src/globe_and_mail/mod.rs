@@ -9,6 +9,9 @@ impl crate::source::Source for GlobeAndMail {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(400)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(400)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

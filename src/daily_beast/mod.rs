@@ -9,6 +9,9 @@ impl crate::source::Source for DailyBeast {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(804)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(804)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Politics,

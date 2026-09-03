@@ -9,6 +9,9 @@ impl crate::source::Source for SkyNews {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(10)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(10)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

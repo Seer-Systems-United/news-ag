@@ -9,6 +9,9 @@ impl crate::source::Source for HoustonChronicle {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(305)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(305)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::US,

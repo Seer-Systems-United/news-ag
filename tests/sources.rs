@@ -32,6 +32,7 @@ use news_ag::{
     Oregonian, Pcmag, Scotsman, ScreenRant, StarLedger, TheBulwark, TheHindu,
     UnitedPressInternational, VentureBeat, Zeteo,
 };
+use news_ag::{ApNews, Reuters};
 use news_ag::{
     models::Article,
     source::endpoint::{Endpoint, EndpointScope},
@@ -740,4 +741,32 @@ fn winnipeg_free_press_returns_articles() {
 #[test]
 fn young_turks_returns_articles() {
     assert_source_has_articles::<YoungTurks>("young_turks");
+}
+
+#[test]
+fn ap_news_reports_name() {
+    assert_eq!(ApNews::name(), "AP News");
+}
+
+#[test]
+fn new_york_times_reports_name() {
+    assert_eq!(NewYorkTimes::name(), "New York Times");
+}
+
+#[test]
+fn reuters_reports_name() {
+    assert_eq!(Reuters::name(), "Reuters");
+}
+
+#[test]
+fn all_macro_sources_report_distinct_names() {
+    assert_eq!(Billboard::name(), "Billboard");
+    assert_eq!(UsaToday::name(), "USA Today");
+    assert_eq!(Spectator::name(), "The Spectator");
+    assert_eq!(Cnet::name(), "CNET");
+    assert_eq!(Clarin::name(), "Clarín");
+    assert_eq!(ElPais::name(), "El País");
+    assert_eq!(Scotsman::name(), "The Scotsman");
+    assert_eq!(Wired::name(), "Wired");
+    assert_eq!(ArsTechnica::name(), "Ars Technica");
 }

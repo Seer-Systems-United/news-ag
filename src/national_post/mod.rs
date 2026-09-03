@@ -9,6 +9,9 @@ impl crate::source::Source for NationalPost {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(402)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(402)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::World, "https://nationalpost.com/feed")])
     }

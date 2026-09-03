@@ -9,6 +9,9 @@ impl crate::source::Source for TheSun {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(504)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(504)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

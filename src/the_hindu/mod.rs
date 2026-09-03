@@ -9,6 +9,9 @@ impl crate::source::Source for TheHindu {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(615)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(615)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

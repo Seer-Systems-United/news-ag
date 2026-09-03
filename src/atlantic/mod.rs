@@ -9,6 +9,9 @@ impl crate::source::Source for Atlantic {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(801)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(801)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

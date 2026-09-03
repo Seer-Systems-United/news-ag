@@ -9,6 +9,9 @@ impl crate::source::Source for Guardian {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(500)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(500)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

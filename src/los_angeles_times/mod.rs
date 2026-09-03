@@ -9,6 +9,9 @@ impl crate::source::Source for LosAngelesTimes {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(303)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(303)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::US, "https://www.latimes.com/rss2.0.xml")])
     }

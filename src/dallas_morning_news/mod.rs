@@ -16,6 +16,9 @@ impl crate::source::Source for DallasMorningNews {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(308)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(308)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::US, BASE_URL)], parse_articles)
     }

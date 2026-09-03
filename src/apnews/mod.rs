@@ -56,6 +56,9 @@ impl crate::source::Source for ApNews {
     fn id() -> uuid::Uuid {
         crate::source::feed::source_id(1)
     }
+    fn name() -> &'static str {
+        crate::source::feed::source_name(1)
+    }
     fn endpoints() -> Vec<crate::source::endpoint::Endpoint> {
         vec![
             crate::source::endpoint::Endpoint {
