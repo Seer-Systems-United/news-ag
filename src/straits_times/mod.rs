@@ -6,6 +6,9 @@ use crate::source::{
 pub struct StraitsTimes;
 
 impl crate::source::Source for StraitsTimes {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(603)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[
             (

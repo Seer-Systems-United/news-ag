@@ -6,6 +6,9 @@ use crate::source::{
 pub struct Engadget;
 
 impl crate::source::Source for Engadget {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(203)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::Technology,

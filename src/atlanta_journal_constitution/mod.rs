@@ -12,6 +12,9 @@ const BASE_URL: &str = "https://www.ajc.com";
 pub struct AtlantaJournalConstitution;
 
 impl crate::source::Source for AtlantaJournalConstitution {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(307)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::US, BASE_URL)], parse_articles)
     }

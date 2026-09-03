@@ -6,6 +6,9 @@ use crate::source::{
 pub struct Vox;
 
 impl crate::source::Source for Vox {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(802)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(EndpointScope::World, "https://www.vox.com/rss/index.xml")])
     }

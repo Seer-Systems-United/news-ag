@@ -53,6 +53,9 @@ fn common_rules() -> Vec<Rule> {
 }
 
 impl crate::source::Source for ApNews {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(1)
+    }
     fn endpoints() -> Vec<crate::source::endpoint::Endpoint> {
         vec![
             crate::source::endpoint::Endpoint {

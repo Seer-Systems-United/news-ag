@@ -13,6 +13,9 @@ const BASE_URL: &str = "https://tyt.com";
 pub struct YoungTurks;
 
 impl crate::source::Source for YoungTurks {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(806)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::Politics, BASE_URL)], parse_articles)
     }

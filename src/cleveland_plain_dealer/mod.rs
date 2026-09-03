@@ -6,6 +6,9 @@ use crate::source::{
 pub struct ClevelandPlainDealer;
 
 impl crate::source::Source for ClevelandPlainDealer {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(314)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::US,

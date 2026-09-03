@@ -6,6 +6,9 @@ use crate::source::{
 pub struct GlobeAndMail;
 
 impl crate::source::Source for GlobeAndMail {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(400)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

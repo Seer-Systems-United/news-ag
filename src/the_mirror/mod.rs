@@ -6,6 +6,9 @@ use crate::source::{
 pub struct TheMirror;
 
 impl crate::source::Source for TheMirror {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(505)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

@@ -6,6 +6,9 @@ use crate::source::{
 pub struct TheAge;
 
 impl crate::source::Source for TheAge {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(607)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::rss_endpoints(&[(
             EndpointScope::World,

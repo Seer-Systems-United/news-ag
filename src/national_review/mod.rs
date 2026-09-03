@@ -6,6 +6,9 @@ use crate::source::{
 pub struct NationalReview;
 
 impl crate::source::Source for NationalReview {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(829)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::wordpress_endpoints(&[(EndpointScope::Politics, "https://www.nationalreview.com")])
     }

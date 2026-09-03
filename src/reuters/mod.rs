@@ -11,6 +11,9 @@ mod json_feed;
 pub struct Reuters;
 
 impl crate::source::Source for Reuters {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(3)
+    }
     fn endpoints() -> Vec<Endpoint> {
         vec![
             endpoint(EndpointScope::World, config::WORLD_PATH),

@@ -13,6 +13,9 @@ const BASE_URL: &str = "https://www.thetimes.com";
 pub struct TheTimes;
 
 impl crate::source::Source for TheTimes {
+    fn id() -> uuid::Uuid {
+        crate::source::feed::source_id(502)
+    }
     fn endpoints() -> Vec<Endpoint> {
         feed::ssr_json_endpoints(&[(EndpointScope::World, BASE_URL)], parse_articles)
     }
